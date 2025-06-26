@@ -1,0 +1,4099 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Diagnóstico Íntimo Discreto</title>
+<script src="https://fast.wistia.com/player.js" async></script>
+<script src="https://fast.wistia.com/embed/4icy3hbkxa.js" async type="module"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    html {
+        height: 100%;
+        height: 100vh;
+        height: calc(var(--vh, 1vh) * 100);
+        overflow: hidden;
+    }
+    
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #ffecd1 0%, #fcb69f 100%);
+        height: 100%;
+        overflow: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        touch-action: manipulation;
+        position: fixed;
+        width: 100%;
+    }
+    
+    .container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+    
+    .screen {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: clamp(16px, 4vw, 24px);
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        overflow: hidden;
+    }
+    
+    .screen.active {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    
+    .screen.prev {
+        transform: translateX(-100%);
+    }
+    
+    /* Partículas otimizadas */
+    .particles {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+    }
+    
+    .particle {
+        position: absolute;
+        width: 3px;
+        height: 3px;
+        background: rgba(255, 182, 193, 0.4);
+        border-radius: 50%;
+        animation: float 8s infinite ease-in-out;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+        50% { transform: translateY(-60px) rotate(180deg); opacity: 1; }
+    }
+    
+    /* Tela 1 - Boas-vindas */
+    .welcome-screen {
+        background: linear-gradient(135deg, #ffecd1 0%, #fcb69f 100%);
+        text-align: center;
+        padding: clamp(20px, 5vw, 40px) clamp(16px, 4vw, 24px);
+    }
+    
+    .welcome-title {
+        font-size: clamp(24px, 6vw, 32px);
+        font-weight: 600;
+        color: #8b4a6b;
+        margin-bottom: clamp(16px, 4vw, 24px);
+        line-height: 1.2;
+        animation: fadeInUp 1s ease-out;
+        max-width: 100%;
+    }
+    
+    .welcome-subtitle {
+        font-size: clamp(14px, 3.5vw, 18px);
+        color: #a0616a;
+        margin-bottom: clamp(32px, 8vw, 48px);
+        animation: fadeInUp 1s ease-out 0.3s both;
+        line-height: 1.4;
+        max-width: 100%;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+        color: white;
+        border: none;
+        padding: clamp(14px, 3.5vw, 18px) clamp(24px, 6vw, 32px);
+        font-size: clamp(14px, 3.5vw, 18px);
+        font-weight: 600;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(255, 107, 157, 0.3);
+        animation: fadeInUp 1s ease-out 0.6s both;
+        min-height: clamp(48px, 12vw, 60px);
+        width: 100%;
+        max-width: clamp(280px, 70vw, 350px);
+        touch-action: manipulation;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .btn-primary:active {
+        transform: scale(0.95);
+        box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+    }
+
+    /* Botão verde pulsante para diagnóstico */
+    .btn-diagnosis-action {
+        background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%) !important;
+        box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4) !important;
+        animation: pulse-green 2s infinite !important;
+    }
+
+    .btn-diagnosis-action:active {
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.5) !important;
+    }
+
+    @keyframes pulse-green {
+        0% {
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+            transform: scale(1);
+        }
+        50% {
+            box-shadow: 0 12px 35px rgba(76, 175, 80, 0.6);
+            transform: scale(1.02);
+        }
+        100% {
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+            transform: scale(1);
+        }
+    }
+    
+    /* Telas de perguntas - Estilo geral */
+    .question-screen {
+        background: linear-gradient(135deg, #fff5f5 0%, #ffe0e6 100%);
+        padding: clamp(16px, 4vw, 24px);
+        justify-content: flex-start;
+        padding-top: clamp(20px, 5vw, 40px);
+    }
+    
+    .question-screen.alt1 {
+        background: linear-gradient(135deg, #f8f0ff 0%, #e6d7ff 100%);
+    }
+    
+    .question-screen.alt2 {
+        background: linear-gradient(135deg, #f0f8ff 0%, #e0f0ff 100%);
+    }
+    
+    .question-screen.alt3 {
+        background: linear-gradient(135deg, #f8fff0 0%, #e8ffe0 100%);
+    }
+    
+    .screen-title {
+        font-size: clamp(18px, 4.5vw, 24px);
+        font-weight: 600;
+        color: #8b4a6b;
+        margin-bottom: clamp(16px, 4vw, 24px);
+        text-align: center;
+        line-height: 1.2;
+        width: 100%;
+    }
+    
+    .selection-counter {
+        background: rgba(255, 107, 157, 0.1);
+        color: #8b4a6b;
+        padding: clamp(6px, 1.5vw, 10px) clamp(12px, 3vw, 18px);
+        border-radius: 20px;
+        font-size: clamp(12px, 3vw, 16px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+        font-weight: 500;
+        text-align: center;
+        width: 100%;
+        max-width: clamp(280px, 70vw, 350px);
+    }
+    
+    .options-grid {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(10px, 2.5vw, 16px);
+        width: 100%;
+        max-width: clamp(320px, 80vw, 400px);
+        margin-bottom: clamp(60px, 15vw, 100px);
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 4px;
+        max-height: calc(100vh - clamp(200px, 50vw, 300px));
+    }
+    
+    .option-card {
+        background: white;
+        padding: clamp(12px, 3vw, 18px);
+        border-radius: clamp(12px, 3vw, 18px);
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        min-height: clamp(60px, 15vw, 80px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        touch-action: manipulation;
+        position: relative;
+        width: 100%;
+    }
+    
+    .option-card.selected {
+        border-color: #ff6b9d;
+        background: linear-gradient(135deg, #fff0f5 0%, #ffe4e9 100%);
+        transform: scale(1.02);
+        box-shadow: 0 6px 20px rgba(255, 107, 157, 0.2);
+    }
+    
+    .option-card.selected::after {
+        content: '✓';
+        position: absolute;
+        top: clamp(6px, 1.5vw, 10px);
+        right: clamp(8px, 2vw, 12px);
+        background: #ff6b9d;
+        color: white;
+        width: clamp(16px, 4vw, 22px);
+        height: clamp(16px, 4vw, 22px);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: clamp(10px, 2.5vw, 14px);
+        font-weight: bold;
+    }
+    
+    .option-icon {
+        font-size: clamp(20px, 5vw, 28px);
+        margin-bottom: clamp(6px, 1.5vw, 10px);
+        display: block;
+    }
+    
+    .option-text {
+        font-size: clamp(12px, 3vw, 16px);
+        font-weight: 500;
+        color: #8b4a6b;
+        line-height: 1.3;
+        text-align: center;
+    }
+    
+    /* Escala de 1-10 */
+    .scale-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: clamp(8px, 2vw, 12px);
+        width: 100%;
+        max-width: clamp(320px, 80vw, 400px);
+        margin-bottom: clamp(60px, 15vw, 100px);
+    }
+    
+    .scale-item {
+        background: white;
+        padding: clamp(12px, 3vw, 18px);
+        border-radius: clamp(8px, 2vw, 12px);
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        min-height: clamp(50px, 12.5vw, 70px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        touch-action: manipulation;
+        position: relative;
+    }
+    
+    .scale-item.selected {
+        border-color: #ff6b9d;
+        background: linear-gradient(135deg, #fff0f5 0%, #ffe4e9 100%);
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(255, 107, 157, 0.2);
+    }
+    
+    .scale-number {
+        font-size: clamp(16px, 4vw, 24px);
+        font-weight: 700;
+        color: #8b4a6b;
+    }
+    
+    .scale-labels {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        max-width: clamp(320px, 80vw, 400px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+        font-size: clamp(10px, 2.5vw, 14px);
+        color: #a0616a;
+        font-weight: 500;
+    }
+    
+    /* Tela 2 - Sintomas */
+    .symptoms-screen {
+        background: linear-gradient(135deg, #fff5f5 0%, #ffe0e6 100%);
+        padding: clamp(16px, 4vw, 24px);
+        justify-content: flex-start;
+        padding-top: clamp(20px, 5vw, 40px);
+    }
+    
+    .symptoms-grid {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(10px, 2.5vw, 16px);
+        width: 100%;
+        max-width: clamp(320px, 80vw, 400px);
+        margin-bottom: clamp(60px, 15vw, 100px);
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 4px;
+        max-height: calc(100vh - clamp(200px, 50vw, 300px));
+    }
+    
+    .symptom-card {
+        background: white;
+        padding: clamp(12px, 3vw, 18px);
+        border-radius: clamp(12px, 3vw, 18px);
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        min-height: clamp(70px, 17.5vw, 90px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        touch-action: manipulation;
+        position: relative;
+        width: 100%;
+    }
+    
+    .symptom-card.selected {
+        border-color: #ff6b9d;
+        background: linear-gradient(135deg, #fff0f5 0%, #ffe4e9 100%);
+        transform: scale(1.02);
+        box-shadow: 0 6px 20px rgba(255, 107, 157, 0.2);
+    }
+    
+    .symptom-card.selected::after {
+        content: '✓';
+        position: absolute;
+        top: clamp(6px, 1.5vw, 10px);
+        right: clamp(8px, 2vw, 12px);
+        background: #ff6b9d;
+        color: white;
+        width: clamp(16px, 4vw, 22px);
+        height: clamp(16px, 4vw, 22px);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: clamp(10px, 2.5vw, 14px);
+        font-weight: bold;
+    }
+    
+    .symptom-icon {
+        font-size: clamp(24px, 6vw, 36px);
+        margin-bottom: clamp(6px, 1.5vw, 10px);
+        display: block;
+    }
+    
+    .symptom-text {
+        font-size: clamp(12px, 3vw, 16px);
+        font-weight: 500;
+        color: #8b4a6b;
+        line-height: 1.3;
+        text-align: center;
+    }
+    
+    /* Tela 3 - Fatores */
+    .factors-screen {
+        background: linear-gradient(135deg, #f8f0ff 0%, #e6d7ff 100%);
+        padding: clamp(16px, 4vw, 24px);
+        justify-content: flex-start;
+        padding-top: clamp(20px, 5vw, 40px);
+    }
+    
+    .factors-list {
+        width: 100%;
+        max-width: clamp(320px, 80vw, 400px);
+        margin-bottom: clamp(60px, 15vw, 100px);
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: clamp(10px, 2.5vw, 16px);
+        max-height: calc(100vh - clamp(200px, 50vw, 300px));
+    }
+    
+    .factor-item {
+        background: white;
+        padding: clamp(12px, 3vw, 18px);
+        border-radius: clamp(12px, 3vw, 18px);
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        touch-action: manipulation;
+        border: 2px solid transparent;
+        min-height: clamp(60px, 15vw, 80px);
+        width: 100%;
+    }
+    
+    .factor-item.selected {
+        border-color: #ff6b9d;
+        background: linear-gradient(135deg, #fff0f5 0%, #ffe4e9 100%);
+        transform: translateX(4px);
+        box-shadow: 0 6px 20px rgba(255, 107, 157, 0.2);
+    }
+    
+    .factor-checkbox {
+        width: clamp(20px, 5vw, 28px);
+        height: clamp(20px, 5vw, 28px);
+        border: 2px solid #ff6b9d;
+        border-radius: 6px;
+        margin-right: clamp(10px, 2.5vw, 16px);
+        position: relative;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+    }
+    
+    .factor-checkbox.checked {
+        background: #ff6b9d;
+    }
+    
+    .factor-checkbox.checked::after {
+        content: '✓';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-weight: bold;
+        font-size: clamp(12px, 3vw, 16px);
+    }
+    
+    .factor-text {
+        font-size: clamp(12px, 3vw, 16px);
+        color: #8b4a6b;
+        font-weight: 500;
+        line-height: 1.3;
+        flex: 1;
+    }
+
+    /* Tela de Vídeo Educativo */
+    .video-screen {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: clamp(16px, 4vw, 24px);
+        justify-content: flex-start;
+        padding-top: clamp(20px, 5vw, 40px);
+        overflow-y: auto;
+    }
+
+    .video-container {
+        width: 100%;
+        max-width: clamp(320px, 80vw, 400px);
+        text-align: center;
+        padding-bottom: clamp(32px, 8vw, 48px);
+    }
+
+    .video-title {
+        font-size: clamp(18px, 4.5vw, 24px);
+        font-weight: 700;
+        color: white;
+        margin-bottom: clamp(16px, 4vw, 24px);
+        line-height: 1.3;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .video-subtitle {
+        font-size: clamp(14px, 3.5vw, 18px);
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: clamp(24px, 6vw, 32px);
+        line-height: 1.4;
+    }
+
+    .video-wrapper {
+        background: white;
+        border-radius: 20px;
+        padding: clamp(16px, 4vw, 24px);
+        margin-bottom: clamp(24px, 6vw, 32px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .video-intro-text {
+        font-size: clamp(13px, 3.25vw, 17px);
+        color: #8b4a6b;
+        font-weight: 600;
+        margin-bottom: clamp(16px, 4vw, 24px);
+        line-height: 1.4;
+        text-align: left;
+    }
+
+    .video-player-container {
+        position: relative;
+        width: 100%;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #000;
+        margin-bottom: clamp(16px, 4vw, 24px);
+    }
+
+    .btn-play-video {
+        background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+        color: white;
+        border: none;
+        padding: clamp(12px, 3vw, 16px) clamp(20px, 5vw, 28px);
+        font-size: clamp(13px, 3.25vw, 17px);
+        font-weight: 600;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(255, 107, 157, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(6px, 1.5vw, 10px);
+        margin: 0 auto clamp(16px, 4vw, 24px);
+        touch-action: manipulation;
+    }
+
+    .btn-play-video:active {
+        transform: scale(0.95);
+    }
+
+    .play-icon {
+        font-size: clamp(14px, 3.5vw, 18px);
+    }
+
+    .video-benefits {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: clamp(16px, 4vw, 24px);
+        margin-bottom: clamp(24px, 6vw, 32px);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .benefits-title {
+        font-size: clamp(14px, 3.5vw, 18px);
+        font-weight: 700;
+        color: #ffd700;
+        margin-bottom: clamp(12px, 3vw, 18px);
+        text-align: center;
+    }
+
+    .benefit-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: clamp(8px, 2vw, 12px);
+        font-size: clamp(12px, 3vw, 16px);
+        color: white;
+        opacity: 0;
+        animation: slideInLeft 0.6s ease-out forwards;
+    }
+
+    .benefit-item:nth-child(2) { animation-delay: 0.1s; }
+    .benefit-item:nth-child(3) { animation-delay: 0.2s; }
+    .benefit-item:nth-child(4) { animation-delay: 0.3s; }
+    .benefit-item:nth-child(5) { animation-delay: 0.4s; }
+
+    .benefit-icon {
+        margin-right: clamp(8px, 2vw, 12px);
+        font-size: clamp(14px, 3.5vw, 18px);
+        color: #ffd700;
+        flex-shrink: 0;
+    }
+
+    /* Wistia player customization */
+    wistia-player[media-id='4icy3hbkxa']:not(:defined) { 
+        background: center / contain no-repeat url('https://fast.wistia.com/embed/medias/4icy3hbkxa/swatch'); 
+        display: block; 
+        filter: blur(5px); 
+        padding-top: 177.78%; 
+        border-radius: 16px;
+    }
+
+    wistia-player {
+        border-radius: 16px;
+        overflow: hidden;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* Tela de Análise - MELHORADA */
+    .analysis-screen {
+        background: linear-gradient(135deg, #6b4c7a 0%, #4a3c5a 100%);
+        color: white;
+        padding: clamp(16px, 4vw, 24px);
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .analysis-screen::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 30% 20%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 70% 80%, rgba(255, 107, 157, 0.1) 0%, transparent 50%);
+        pointer-events: none;
+    }
+    
+    .analysis-container {
+        width: 100%;
+        max-width: clamp(320px, 80vw, 400px);
+        text-align: center;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .analysis-title {
+        font-size: clamp(24px, 6vw, 32px);
+        margin-bottom: clamp(40px, 10vw, 60px);
+        color: #ffd700;
+        font-weight: 700;
+        text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+        animation: titlePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes titlePulse {
+        0%, 100% { transform: scale(1); text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3); }
+        50% { transform: scale(1.02); text-shadow: 0 4px 20px rgba(255, 215, 0, 0.6); }
+    }
+    
+    .analysis-steps {
+        margin-bottom: clamp(40px, 10vw, 60px);
+        display: flex;
+        flex-direction: column;
+        gap: clamp(16px, 4vw, 24px);
+    }
+    
+    .analysis-item {
+        display: flex;
+        align-items: center;
+        padding: clamp(16px, 4vw, 24px);
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: clamp(16px, 4vw, 20px);
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        font-size: clamp(14px, 3.5vw, 18px);
+        width: 100%;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .analysis-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transition: left 0.8s ease;
+    }
+
+    .analysis-item.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .analysis-item.show::before {
+        left: 100%;
+    }
+
+    .analysis-item.warning {
+        background: rgba(255, 193, 7, 0.15);
+        border: 1px solid rgba(255, 193, 7, 0.3);
+        box-shadow: 0 8px 32px rgba(255, 193, 7, 0.2);
+    }
+
+    .analysis-item.warning .analysis-icon {
+        color: #ffd700;
+        animation: warningPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes warningPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    
+    .analysis-icon {
+        margin-right: clamp(12px, 3vw, 18px);
+        font-size: clamp(20px, 5vw, 28px);
+        flex-shrink: 0;
+        width: clamp(32px, 8vw, 40px);
+        height: clamp(32px, 8vw, 40px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .analysis-icon.blue {
+        background: rgba(52, 152, 219, 0.2);
+        color: #3498db;
+    }
+
+    .analysis-icon.green {
+        background: rgba(46, 204, 113, 0.2);
+        color: #2ecc71;
+    }
+
+    .analysis-icon.yellow {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffd700;
+    }
+
+    .analysis-text {
+        font-weight: 500;
+        line-height: 1.4;
+        flex: 1;
+        text-align: left;
+    }
+    
+    .progress-container {
+        margin: clamp(40px, 10vw, 60px) 0 0 0;
+        position: relative;
+    }
+    
+    .progress-bar {
+        width: 100%;
+        height: clamp(12px, 3vw, 16px);
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: clamp(6px, 1.5vw, 8px);
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #ffd700 0%, #ff6b9d 50%, #ff4757 100%);
+        width: 0%;
+        border-radius: clamp(6px, 1.5vw, 8px);
+        position: relative;
+        overflow: hidden;
+        transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+    }
+
+    .progress-fill::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        animation: progressShine 2s ease-in-out infinite;
+    }
+
+    @keyframes progressShine {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+    
+    .progress-percentage {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: clamp(14px, 3.5vw, 18px);
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        z-index: 2;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+    }
+
+    .progress-percentage.show {
+        opacity: 1;
+    }
+    
+    /* Tela de Agravamento */
+    .agravamento-screen {
+        background: linear-gradient(135deg, #ff4757 0%, #c44569 100%);
+        color: white;
+        padding: clamp(16px, 4vw, 24px);
+        justify-content: flex-start;
+        padding-top: clamp(16px, 4vw, 24px);
+        overflow-y: auto;
+    }
+
+    /* Tela de Custo da Inação */
+    .cost-inaction-screen {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        padding: clamp(16px, 4vw, 24px);
+        justify-content: flex-start;
+        padding-top: clamp(16px, 4vw, 24px);
+        overflow-y: auto;
+    }
+
+    /* Tela de Diagnóstico */
+    .diagnosis-screen {
+        background: linear-gradient(135deg, #ff6b9d 0%, #8b4a6b 100%);
+        color: white;
+        padding: clamp(16px, 4vw, 24px);
+        justify-content: flex-start;
+        padding-top: clamp(16px, 4vw, 24px);
+        overflow-y: auto;
+    }
+
+    .diagnosis-container {
+        width: 100%;
+        max-width: clamp(320px, 80vw, 400px);
+        text-align: center;
+        padding-bottom: clamp(32px, 8vw, 48px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .alert-badge {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid #ffd700;
+        padding: clamp(6px, 1.5vw, 10px) clamp(12px, 3vw, 18px);
+        border-radius: 20px;
+        font-size: clamp(10px, 2.5vw, 14px);
+        font-weight: 600;
+        color: #ffd700;
+        margin-bottom: clamp(16px, 4vw, 24px);
+        animation: pulse 2s infinite;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .risk-meter {
+        background: rgba(255,255,255,0.2);
+        padding: clamp(16px, 4vw, 24px);
+        border-radius: 20px;
+        margin-bottom: clamp(16px, 4vw, 24px);
+        width: 100%;
+        max-width: clamp(250px, 62.5vw, 320px);
+        position: relative;
+        overflow: hidden;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .risk-meter::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent 30%, rgba(255, 215, 0, 0.1) 50%, transparent 70%);
+        animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    .risk-percentage {
+        font-size: clamp(36px, 9vw, 56px);
+        font-weight: 700;
+        color: #ffd700;
+        margin-bottom: clamp(6px, 1.5vw, 10px);
+        text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+
+    .risk-label {
+        font-size: clamp(12px, 3vw, 16px);
+        opacity: 0.9;
+        margin-bottom: clamp(8px, 2vw, 12px);
+    }
+
+    .risk-status {
+        background: #ff4757;
+        color: white;
+        padding: clamp(4px, 1vw, 8px) clamp(8px, 2vw, 14px);
+        border-radius: 15px;
+        font-size: clamp(10px, 2.5vw, 14px);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .diagnosis-title {
+        font-size: clamp(18px, 4.5vw, 26px);
+        font-weight: 700;
+        margin-bottom: clamp(12px, 3vw, 18px);
+        line-height: 1.2;
+        width: 100%;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .diagnosis-subtitle {
+        font-size: clamp(14px, 3.5vw, 18px);
+        font-weight: 500;
+        margin-bottom: clamp(16px, 4vw, 24px);
+        opacity: 0.9;
+        color: #ffd700;
+    }
+
+    .symptoms-detected {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: clamp(12px, 3vw, 18px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+        text-align: left;
+    }
+
+    .symptoms-title {
+        font-size: clamp(12px, 3vw, 16px);
+        font-weight: 600;
+        margin-bottom: clamp(10px, 2.5vw, 16px);
+        color: #ffd700;
+        text-align: center;
+    }
+
+    .symptom-list {
+        list-style: none;
+    }
+
+    .symptom-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: clamp(6px, 1.5vw, 10px);
+        font-size: clamp(11px, 2.75vw, 15px);
+        opacity: 0;
+        animation: slideInLeft 0.5s ease-out forwards;
+    }
+
+    .symptom-item:nth-child(1) { animation-delay: 0.1s; }
+    .symptom-item:nth-child(2) { animation-delay: 0.2s; }
+    .symptom-item:nth-child(3) { animation-delay: 0.3s; }
+    .symptom-item:nth-child(4) { animation-delay: 0.4s; }
+
+    .symptom-icon-small {
+        margin-right: clamp(6px, 1.5vw, 10px);
+        font-size: clamp(14px, 3.5vw, 18px);
+    }
+
+    .warning-box {
+        background: linear-gradient(135deg, #ff4757 0%, #c44569 100%);
+        border-radius: 16px;
+        padding: clamp(12px, 3vw, 18px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .warning-title {
+        font-size: clamp(14px, 3.5vw, 18px);
+        font-weight: 700;
+        margin-bottom: clamp(6px, 1.5vw, 10px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .warning-icon {
+        margin-right: clamp(6px, 1.5vw, 10px);
+        font-size: clamp(16px, 4vw, 22px);
+        animation: bounce 1s infinite;
+    }
+
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        60% { transform: translateY(-5px); }
+    }
+
+    .warning-text {
+        font-size: clamp(11px, 2.75vw, 15px);
+        line-height: 1.4;
+        opacity: 0.95;
+    }
+
+    .consequences-box {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 16px;
+        padding: clamp(12px, 3vw, 18px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+        border-left: 4px solid #ffd700;
+    }
+
+    .consequences-title {
+        font-size: clamp(12px, 3vw, 16px);
+        font-weight: 600;
+        margin-bottom: clamp(10px, 2.5vw, 16px);
+        color: #ffd700;
+    }
+
+    .consequence-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: clamp(6px, 1.5vw, 10px);
+        font-size: clamp(10px, 2.5vw, 14px);
+        line-height: 1.3;
+    }
+
+    .consequence-icon {
+        margin-right: clamp(6px, 1.5vw, 10px);
+        margin-top: 2px;
+        font-size: clamp(10px, 2.5vw, 14px);
+        color: #ff6b9d;
+    }
+
+    .urgency-box {
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        color: #8b4a6b;
+        border-radius: 16px;
+        padding: clamp(12px, 3vw, 18px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+    }
+
+    .urgency-title {
+        font-size: clamp(14px, 3.5vw, 18px);
+        font-weight: 700;
+        margin-bottom: clamp(6px, 1.5vw, 10px);
+    }
+
+    .urgency-text {
+        font-size: clamp(11px, 2.75vw, 15px);
+        font-weight: 500;
+        line-height: 1.4;
+    }
+
+    .countdown-timer {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: clamp(10px, 2.5vw, 16px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+        border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+
+    .countdown-label {
+        font-size: clamp(10px, 2.5vw, 14px);
+        opacity: 0.8;
+        margin-bottom: clamp(3px, 0.75vw, 6px);
+    }
+
+    .countdown-time {
+        font-size: clamp(16px, 4vw, 22px);
+        font-weight: 700;
+        color: #ffd700;
+        font-family: 'Courier New', monospace;
+    }
+
+    .social-proof {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: clamp(10px, 2.5vw, 16px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+        font-size: clamp(10px, 2.5vw, 14px);
+        text-align: center;
+    }
+
+    .social-proof-number {
+        font-size: clamp(14px, 3.5vw, 20px);
+        font-weight: 700;
+        color: #ffd700;
+    }
+
+    /* Tela de Carregamento do Plano */
+    .plan-loading-screen {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: clamp(16px, 4vw, 24px);
+        text-align: center;
+    }
+
+    .loading-container {
+        width: 100%;
+        max-width: clamp(320px, 80vw, 400px);
+    }
+
+    .loading-title {
+        font-size: clamp(20px, 5vw, 28px);
+        font-weight: 700;
+        margin-bottom: clamp(12px, 3vw, 18px);
+        color: #fff;
+    }
+
+    .loading-subtitle {
+        font-size: clamp(14px, 3.5vw, 18px);
+        margin-bottom: clamp(24px, 6vw, 36px);
+        opacity: 0.9;
+        line-height: 1.4;
+    }
+
+    .ai-avatar {
+        width: clamp(60px, 15vw, 90px);
+        height: clamp(60px, 15vw, 90px);
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        border-radius: 50%;
+        margin: 0 auto clamp(16px, 4vw, 24px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: clamp(30px, 7.5vw, 45px);
+        animation: pulse 2s infinite;
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    }
+
+    .loading-steps {
+        margin-bottom: clamp(24px, 6vw, 36px);
+    }
+
+    .loading-step {
+        display: flex;
+        align-items: center;
+        margin-bottom: clamp(12px, 3vw, 18px);
+        padding: clamp(10px, 2.5vw, 16px);
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        opacity: 0.3;
+        transition: all 0.5s ease;
+    }
+
+    .loading-step.active {
+        opacity: 1;
+        background: rgba(255, 215, 0, 0.2);
+        border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+
+    .loading-step.completed {
+        opacity: 1;
+        background: rgba(46, 204, 113, 0.2);
+        border: 1px solid rgba(46, 204, 113, 0.3);
+    }
+
+    .step-icon {
+        margin-right: clamp(10px, 2.5vw, 16px);
+        font-size: clamp(16px, 4vw, 22px);
+        width: clamp(20px, 5vw, 28px);
+        text-align: center;
+    }
+
+    .step-text {
+        font-size: clamp(12px, 3vw, 16px);
+        font-weight: 500;
+    }
+
+    .loading-progress {
+        width: 100%;
+        height: clamp(6px, 1.5vw, 10px);
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        margin-bottom: clamp(16px, 4vw, 24px);
+        overflow: hidden;
+    }
+
+    .loading-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #ffd700 0%, #ffed4e 100%);
+        width: 0%;
+        border-radius: 4px;
+        transition: width 0.5s ease;
+    }
+
+    .personalization-info {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: clamp(12px, 3vw, 18px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+        text-align: left;
+    }
+
+    .personalization-title {
+        font-size: clamp(12px, 3vw, 16px);
+        font-weight: 600;
+        margin-bottom: clamp(10px, 2.5vw, 16px);
+        color: #ffd700;
+        text-align: center;
+    }
+
+    .personalization-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: clamp(6px, 1.5vw, 10px);
+        font-size: clamp(11px, 2.75vw, 15px);
+    }
+
+    .personalization-icon {
+        margin-right: clamp(6px, 1.5vw, 10px);
+        font-size: clamp(14px, 3.5vw, 18px);
+        color: #ffd700;
+    }
+
+    /* Tela do Plano Final */
+    .plan-screen {
+        background: linear-gradient(135deg, #fefefe 0%, #f8f6f3 100%);
+        padding: clamp(12px, 3vw, 20px);
+        overflow-y: auto;
+        height: 100%;
+        justify-content: flex-start;
+        padding-top: clamp(12px, 3vw, 20px);
+    }
+
+    .plan-container {
+        width: 100%;
+        max-width: clamp(320px, 80vw, 400px);
+        padding-bottom: clamp(32px, 8vw, 48px);
+    }
+
+    .exclusive-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: clamp(16px, 4vw, 24px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+        text-align: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .exclusive-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+        animation: exclusiveShine 3s linear infinite;
+    }
+
+    @keyframes exclusiveShine {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .exclusive-badge {
+        background: #ffd700;
+        color: #8b4a6b;
+        padding: clamp(4px, 1vw, 8px) clamp(12px, 3vw, 18px);
+        border-radius: 20px;
+        font-size: clamp(10px, 2.5vw, 14px);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: clamp(12px, 3vw, 18px);
+        display: inline-block;
+        animation: badgePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes badgePulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .plan-title-new {
+        font-size: clamp(18px, 4.5vw, 26px);
+        font-weight: 700;
+        margin-bottom: clamp(8px, 2vw, 12px);
+        line-height: 1.2;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .plan-subtitle-new {
+        font-size: clamp(12px, 3vw, 16px);
+        opacity: 0.9;
+        line-height: 1.4;
+    }
+
+    .personalized-stats {
+        background: white;
+        border-radius: 20px;
+        padding: clamp(16px, 4vw, 24px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+        box-shadow: 0 4px 20px rgba(139, 74, 107, 0.08);
+        border: 2px solid #ffd700;
+        position: relative;
+    }
+
+    .stats-title {
+        font-size: clamp(14px, 3.5vw, 18px);
+        font-weight: 700;
+        color: #8b4a6b;
+        margin-bottom: clamp(16px, 4vw, 24px);
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: clamp(12px, 3vw, 18px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, #fff5f5 0%, #ffe4e9 100%);
+        padding: clamp(12px, 3vw, 18px);
+        border-radius: 16px;
+        text-align: center;
+        border: 2px solid rgba(255, 107, 157, 0.2);
+        animation: statFloat 4s ease-in-out infinite;
+    }
+
+    .stat-card:nth-child(even) {
+        animation-delay: 2s;
+    }
+
+    @keyframes statFloat {
+        0%, 100% { transform: translateY(0px) scale(1); }
+        50% { transform: translateY(-8px) scale(1.02); }
+    }
+
+    .stat-number {
+        font-size: clamp(20px, 5vw, 32px);
+        font-weight: 700;
+        color: #ff6b9d;
+        margin-bottom: clamp(4px, 1vw, 8px);
+        text-shadow: 0 2px 4px rgba(255, 107, 157, 0.2);
+    }
+
+    .stat-label {
+        font-size: clamp(10px, 2.5vw, 14px);
+        color: #8b4a6b;
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+    .urgency-banner {
+        background: linear-gradient(135deg, #ff4757 0%, #c44569 100%);
+        border-radius: 16px;
+        padding: clamp(12px, 3vw, 18px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+        text-align: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        animation: urgencyPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes urgencyPulse {
+        0%, 100% { box-shadow: 0 4px 20px rgba(255, 71, 87, 0.3); }
+        50% { box-shadow: 0 8px 30px rgba(255, 71, 87, 0.6); }
+    }
+
+    @keyframes greenPulse {
+        0%, 100% { 
+            box-shadow: 0 8px 32px rgba(0, 255, 136, 0.4), 0 0 0 0 rgba(0, 255, 136, 0.7);
+            transform: scale(1);
+        }
+        50% { 
+            box-shadow: 0 12px 40px rgba(0, 255, 136, 0.6), 0 0 0 10px rgba(0, 255, 136, 0);
+            transform: scale(1.02);
+        }
+    }
+
+    .agravamento-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+        border-radius: 50px;
+        z-index: 1;
+        animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 0.6; }
+    }
+
+    /* Animação para seleção automática */
+    @keyframes selectedPulse {
+        0% { 
+            transform: scale(1);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+        30% { 
+            transform: scale(1.05);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+        }
+        100% { 
+            transform: scale(1.02);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+        }
+    }
+
+    .auto-selected {
+        animation: selectedPulse 0.8s ease-out;
+        background: linear-gradient(135deg, #667eea, #764ba2) !important;
+        color: white !important;
+        border: 3px solid #ffffff !important;
+        box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4) !important;
+    }
+
+    .auto-selected .option-icon {
+        transform: scale(1.2);
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+
+    .auto-selected .scale-number {
+        color: white !important;
+        font-weight: 800 !important;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .urgency-text {
+        font-size: clamp(12px, 3vw, 16px);
+        font-weight: 600;
+        margin-bottom: clamp(8px, 2vw, 12px);
+    }
+
+    .timer-display {
+        font-size: clamp(16px, 4vw, 24px);
+        font-weight: 700;
+        font-family: 'Courier New', monospace;
+        color: #ffd700;
+    }
+
+    /* Identificação do Perfil Vaginal */
+    .vaginal-profile-section {
+        background: white;
+        border-radius: 20px;
+        padding: clamp(16px, 4vw, 24px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+        box-shadow: 0 4px 20px rgba(139, 74, 107, 0.08);
+        border: 2px solid #667eea;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .vaginal-profile-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .profile-title {
+        font-size: clamp(14px, 3.5vw, 18px);
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: clamp(16px, 4vw, 24px);
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .profile-icon {
+        margin-right: clamp(8px, 2vw, 12px);
+        font-size: clamp(16px, 4vw, 20px);
+    }
+
+    .profile-card {
+        background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+        border-radius: 16px;
+        padding: clamp(16px, 4vw, 24px);
+        border: 2px solid rgba(102, 126, 234, 0.2);
+        position: relative;
+        animation: profileGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes profileGlow {
+        0%, 100% { box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1); }
+        50% { box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2); }
+    }
+
+    .profile-header {
+        margin-bottom: clamp(12px, 3vw, 18px);
+    }
+
+    .profile-type-label {
+        font-size: clamp(11px, 2.75vw, 15px);
+        color: #667eea;
+        font-weight: 600;
+        margin-bottom: clamp(4px, 1vw, 8px);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .profile-type-name {
+        font-size: clamp(16px, 4vw, 22px);
+        font-weight: 700;
+        color: #8b4a6b;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .profile-description {
+        font-size: clamp(12px, 3vw, 16px);
+        color: #5a5a5a;
+        line-height: 1.4;
+        margin-bottom: clamp(12px, 3vw, 18px);
+        font-style: italic;
+    }
+
+    .profile-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(102, 126, 234, 0.1);
+        border-radius: 20px;
+        padding: clamp(6px, 1.5vw, 10px) clamp(12px, 3vw, 18px);
+        font-size: clamp(10px, 2.5vw, 14px);
+        font-weight: 600;
+        color: #667eea;
+    }
+
+    .badge-icon {
+        margin-right: clamp(6px, 1.5vw, 10px);
+        font-size: clamp(12px, 3vw, 16px);
+    }
+
+    .analysis-summary-new {
+        background: white;
+        border-radius: 20px;
+        padding: clamp(16px, 4vw, 24px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+        box-shadow: 0 4px 20px rgba(139, 74, 107, 0.08);
+        border: 1px solid rgba(255, 182, 193, 0.2);
+    }
+
+    .summary-title-new {
+        font-size: clamp(14px, 3.5vw, 18px);
+        font-weight: 600;
+        color: #8b4a6b;
+        margin-bottom: clamp(16px, 4vw, 24px);
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .personal-insights {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(10px, 2.5vw, 16px);
+    }
+
+    .insight-item {
+        display: flex;
+        align-items: flex-start;
+        padding: clamp(12px, 3vw, 18px);
+        background: linear-gradient(135deg, #f8f6f3 0%, #fff5f5 100%);
+        border-radius: 12px;
+        border-left: 4px solid #ff6b9d;
+        animation: insightSlide 0.6s ease-out forwards;
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    .insight-item:nth-child(1) { animation-delay: 0.1s; }
+    .insight-item:nth-child(2) { animation-delay: 0.2s; }
+    .insight-item:nth-child(3) { animation-delay: 0.3s; }
+    .insight-item:nth-child(4) { animation-delay: 0.4s; }
+
+    @keyframes insightSlide {
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .insight-icon {
+        font-size: clamp(16px, 4vw, 22px);
+        margin-right: clamp(10px, 2.5vw, 16px);
+        margin-top: 2px;
+        flex-shrink: 0;
+    }
+
+    .insight-text {
+        font-size: clamp(12px, 3vw, 16px);
+        color: #8b4a6b;
+        font-weight: 500;
+        line-height: 1.3;
+    }
+
+    .protocol-section-new {
+        background: white;
+        border-radius: 20px;
+        padding: clamp(16px, 4vw, 24px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+        box-shadow: 0 4px 20px rgba(139, 74, 107, 0.08);
+        border: 1px solid rgba(255, 182, 193, 0.2);
+    }
+
+    .protocol-title-new {
+        font-size: clamp(16px, 4vw, 20px);
+        font-weight: 600;
+        color: #8b4a6b;
+        margin-bottom: clamp(16px, 4vw, 24px);
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .protocol-grid {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(10px, 2.5vw, 16px);
+    }
+
+    .protocol-card {
+        background: linear-gradient(135deg, #f8f6f3 0%, #fff5f5 100%);
+        padding: clamp(12px, 3vw, 18px);
+        border-radius: 12px;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        animation: protocolReveal 0.6s ease-out forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    .protocol-card:nth-child(1) { animation-delay: 0.1s; }
+    .protocol-card:nth-child(2) { animation-delay: 0.2s; }
+    .protocol-card:nth-child(3) { animation-delay: 0.3s; }
+    .protocol-card:nth-child(4) { animation-delay: 0.4s; }
+    .protocol-card:nth-child(5) { animation-delay: 0.5s; }
+
+    @keyframes protocolReveal {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .protocol-card:hover {
+        border-color: #ff6b9d;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 157, 0.2);
+    }
+
+    .protocol-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: clamp(6px, 1.5vw, 10px);
+    }
+
+    .protocol-check-new {
+        color: #2ecc71;
+        font-size: clamp(16px, 4vw, 22px);
+        margin-right: clamp(10px, 2.5vw, 16px);
+        flex-shrink: 0;
+    }
+
+    .protocol-title-item {
+        font-size: clamp(13px, 3.25vw, 17px);
+        font-weight: 600;
+        color: #8b4a6b;
+    }
+
+    .protocol-description {
+        font-size: clamp(11px, 2.75vw, 15px);
+        color: #a0616a;
+        line-height: 1.3;
+        margin-left: clamp(26px, 6.5vw, 38px);
+    }
+
+    .testimonial-section {
+        background: linear-gradient(135deg, #fff5f5 0%, #ffe4e9 100%);
+        border-radius: 20px;
+        padding: clamp(16px, 4vw, 24px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+        border: 2px solid rgba(255, 107, 157, 0.2);
+    }
+
+    .testimonial-title {
+        font-size: clamp(14px, 3.5vw, 18px);
+        font-weight: 600;
+        color: #8b4a6b;
+        margin-bottom: clamp(16px, 4vw, 24px);
+        text-align: center;
+    }
+
+    .testimonial-card {
+        background: white;
+        padding: clamp(12px, 3vw, 18px);
+        border-radius: 12px;
+        margin-bottom: clamp(12px, 3vw, 18px);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        animation: testimonialFade 0.8s ease-out forwards;
+        opacity: 0;
+    }
+
+    .testimonial-card:nth-child(2) { animation-delay: 0.2s; }
+    .testimonial-card:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes testimonialFade {
+        to { opacity: 1; }
+    }
+
+    .testimonial-text {
+        font-size: clamp(11px, 2.75vw, 15px);
+        color: #8b4a6b;
+        line-height: 1.4;
+        margin-bottom: clamp(8px, 2vw, 12px);
+        font-style: italic;
+    }
+
+    .testimonial-author {
+        font-size: clamp(10px, 2.5vw, 14px);
+        color: #ff6b9d;
+        font-weight: 600;
+        text-align: right;
+    }
+
+    .bonus-section-super {
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        border-radius: 20px;
+        padding: clamp(16px, 4vw, 24px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+        text-align: center;
+        box-shadow: 0 8px 30px rgba(255, 215, 0, 0.3);
+        border: 3px solid rgba(255, 215, 0, 0.5);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .bonus-section-super::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, #ffd700, #ff6b9d, #ffd700, #ff6b9d);
+        border-radius: 20px;
+        z-index: -1;
+        animation: borderGlow 3s linear infinite;
+    }
+
+    @keyframes borderGlow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .bonus-title-super {
+        font-size: clamp(16px, 4vw, 22px);
+        font-weight: 700;
+        color: #8b4a6b;
+        margin-bottom: clamp(16px, 4vw, 24px);
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .bonus-value {
+        background: rgba(255, 255, 255, 0.9);
+        padding: clamp(8px, 2vw, 12px);
+        border-radius: 12px;
+        margin-bottom: clamp(16px, 4vw, 24px);
+    }
+
+    .bonus-value-text {
+        font-size: clamp(12px, 3vw, 16px);
+        color: #8b4a6b;
+        font-weight: 600;
+        margin-bottom: clamp(4px, 1vw, 8px);
+    }
+
+    .bonus-value-amount {
+        font-size: clamp(18px, 4.5vw, 26px);
+        font-weight: 700;
+        color: #ff6b9d;
+        text-decoration: line-through;
+        opacity: 0.7;
+    }
+
+    .bonus-items-grid {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(8px, 2vw, 12px);
+    }
+
+    .bonus-item-super {
+        background: rgba(255, 255, 255, 0.8);
+        padding: clamp(10px, 2.5vw, 16px);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        text-align: left;
+    }
+
+    .bonus-item-icon {
+        font-size: clamp(16px, 4vw, 22px);
+        margin-right: clamp(10px, 2.5vw, 16px);
+        flex-shrink: 0;
+    }
+
+    .bonus-item-content {
+        flex: 1;
+    }
+
+    .bonus-item-title {
+        font-size: clamp(12px, 3vw, 16px);
+        font-weight: 600;
+        color: #8b4a6b;
+        margin-bottom: clamp(2px, 0.5vw, 4px);
+    }
+
+    .bonus-item-desc {
+        font-size: clamp(10px, 2.5vw, 14px);
+        color: #a0616a;
+        line-height: 1.2;
+    }
+
+    .guarantee-section {
+        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        border-radius: 20px;
+        padding: clamp(16px, 4vw, 24px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+        text-align: center;
+        color: white;
+        box-shadow: 0 8px 30px rgba(46, 204, 113, 0.3);
+    }
+
+    .guarantee-icon {
+        font-size: clamp(32px, 8vw, 48px);
+        margin-bottom: clamp(12px, 3vw, 18px);
+        animation: guaranteePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes guaranteePulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    .guarantee-title {
+        font-size: clamp(16px, 4vw, 22px);
+        font-weight: 700;
+        margin-bottom: clamp(8px, 2vw, 12px);
+    }
+
+    .guarantee-text {
+        font-size: clamp(12px, 3vw, 16px);
+        line-height: 1.4;
+        opacity: 0.95;
+    }
+
+    .price-comparison {
+        background: white;
+        border-radius: 20px;
+        padding: clamp(16px, 4vw, 24px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+        box-shadow: 0 4px 20px rgba(139, 74, 107, 0.08);
+        border: 2px solid #ff6b9d;
+    }
+
+    .price-title {
+        font-size: clamp(16px, 4vw, 22px);
+        font-weight: 700;
+        color: #8b4a6b;
+        margin-bottom: clamp(16px, 4vw, 24px);
+        text-align: center;
+    }
+
+    .price-grid {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: clamp(16px, 4vw, 24px);
+    }
+
+    .price-old {
+        text-align: center;
+    }
+
+    .price-old-label {
+        font-size: clamp(10px, 2.5vw, 14px);
+        color: #a0616a;
+        margin-bottom: clamp(4px, 1vw, 8px);
+    }
+
+    .price-old-value {
+        font-size: clamp(16px, 4vw, 24px);
+        color: #ff4757;
+        text-decoration: line-through;
+        font-weight: 600;
+    }
+
+    .price-arrow {
+        font-size: clamp(20px, 5vw, 32px);
+        color: #2ecc71;
+        animation: arrowBounce 1s ease-in-out infinite;
+    }
+
+    @keyframes arrowBounce {
+        0%, 100% { transform: translateX(0); }
+        50% { transform: translateX(5px); }
+    }
+
+    .price-new {
+        text-align: center;
+    }
+
+    .price-new-label {
+        font-size: clamp(10px, 2.5vw, 14px);
+        color: #2ecc71;
+        margin-bottom: clamp(4px, 1vw, 8px);
+        font-weight: 600;
+    }
+
+    .price-new-value {
+        font-size: clamp(20px, 5vw, 32px);
+        color: #2ecc71;
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(46, 204, 113, 0.2);
+    }
+
+    .savings-highlight {
+        background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+        color: white;
+        padding: clamp(8px, 2vw, 12px);
+        border-radius: 12px;
+        text-align: center;
+        font-size: clamp(12px, 3vw, 16px);
+        font-weight: 600;
+    }
+
+    .cta-section-super {
+        background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+        border-radius: 20px;
+        padding: clamp(20px, 5vw, 30px);
+        margin-bottom: clamp(16px, 4vw, 24px);
+        text-align: center;
+        color: white;
+        box-shadow: 0 8px 30px rgba(255, 107, 157, 0.4);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-section-super::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        animation: ctaShine 3s ease-in-out infinite;
+    }
+
+    @keyframes ctaShine {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+
+    .cta-urgency {
+        font-size: clamp(12px, 3vw, 16px);
+        font-weight: 600;
+        margin-bottom: clamp(8px, 2vw, 12px);
+        opacity: 0.9;
+    }
+
+    .cta-main-text {
+        font-size: clamp(16px, 4vw, 22px);
+        font-weight: 700;
+        margin-bottom: clamp(16px, 4vw, 24px);
+        line-height: 1.3;
+    }
+
+    .price-highlight-super {
+        font-size: clamp(24px, 6vw, 36px);
+        font-weight: 700;
+        color: #ffd700;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        margin-bottom: clamp(16px, 4vw, 24px);
+    }
+
+    .btn-final-super {
+        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        color: white;
+        border: none;
+        padding: clamp(18px, 4.5vw, 26px) clamp(24px, 6vw, 36px);
+        font-size: clamp(16px, 4vw, 22px);
+        font-weight: 700;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(46, 204, 113, 0.4);
+        animation: finalPulse 2s ease-in-out infinite;
+        width: 100%;
+        min-height: clamp(60px, 15vw, 80px);
+        touch-action: manipulation;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    @keyframes finalPulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 8px 25px rgba(46, 204, 113, 0.4); }
+        50% { transform: scale(1.02); box-shadow: 0 12px 35px rgba(46, 204, 113, 0.6); }
+    }
+
+    .btn-final-super::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: buttonShine 2s ease-in-out infinite;
+    }
+
+    @keyframes buttonShine {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+
+    .btn-final-super:active {
+        transform: scale(0.98);
+        animation: none;
+    }
+
+    /* Botão vermelho sangue pulsante para último CTA */
+    .btn-final-red {
+        background: linear-gradient(135deg, #dc143c 0%, #b22222 100%) !important;
+        box-shadow: 0 8px 25px rgba(220, 20, 60, 0.4) !important;
+        animation: finalPulseRed 1.8s ease-in-out infinite !important;
+    }
+
+    .btn-final-red:active {
+        box-shadow: 0 4px 15px rgba(220, 20, 60, 0.6) !important;
+    }
+
+    .btn-final-red::before {
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent) !important;
+    }
+
+    @keyframes finalPulseRed {
+        0%, 100% { 
+            transform: scale(1); 
+            box-shadow: 0 8px 25px rgba(220, 20, 60, 0.4);
+        }
+        50% { 
+            transform: scale(1.03); 
+            box-shadow: 0 15px 40px rgba(220, 20, 60, 0.7);
+        }
+    }
+
+    .security-badges {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: clamp(12px, 3vw, 20px);
+        margin-top: clamp(16px, 4vw, 24px);
+        flex-wrap: wrap;
+    }
+
+    .security-badge {
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.2);
+        padding: clamp(6px, 1.5vw, 10px) clamp(10px, 2.5vw, 16px);
+        border-radius: 20px;
+        font-size: clamp(10px, 2.5vw, 14px);
+        font-weight: 600;
+        backdrop-filter: blur(10px);
+    }
+
+    .security-icon {
+        margin-right: clamp(4px, 1vw, 8px);
+        font-size: clamp(12px, 3vw, 16px);
+    }
+
+    .trust-footer-super {
+        background: rgba(139, 74, 107, 0.05);
+        border-radius: 16px;
+        padding: clamp(16px, 4vw, 24px);
+        text-align: center;
+        border: 1px solid rgba(139, 74, 107, 0.1);
+    }
+
+    .trust-stats {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: clamp(12px, 3vw, 18px);
+    }
+
+    .trust-stat {
+        text-align: center;
+    }
+
+    .trust-stat-number {
+        font-size: clamp(16px, 4vw, 24px);
+        font-weight: 700;
+        color: #ff6b9d;
+        margin-bottom: clamp(2px, 0.5vw, 4px);
+    }
+
+    .trust-stat-label {
+        font-size: clamp(9px, 2.25vw, 13px);
+        color: #8b4a6b;
+        font-weight: 500;
+    }
+
+    .trust-text-super {
+        font-size: clamp(11px, 2.75vw, 15px);
+        color: #a0616a;
+        line-height: 1.4;
+        opacity: 0.8;
+    }
+    
+    /* Botão de continuar fixo */
+    .continue-btn {
+        position: fixed;
+        bottom: clamp(20px, 5vw, 40px);
+        left: clamp(16px, 4vw, 24px);
+        right: clamp(16px, 4vw, 24px);
+        z-index: 100;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s ease;
+        max-width: none;
+        width: calc(100% - clamp(32px, 8vw, 48px));
+    }
+    
+    .continue-btn.show {
+        opacity: 1;
+        pointer-events: all;
+    }
+    
+    /* Animações */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes fillProgress {
+        from { width: 0%; }
+        to { width: 84%; }
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    
+    /* Feedback tátil */
+    .symptom-card:active,
+    .factor-item:active,
+    .option-card:active,
+    .scale-item:active,
+    .btn-primary:active,
+    .btn-cta:active {
+        transform: scale(0.95);
+    }
+    
+    /* Scrollbar personalizada */
+    .symptoms-grid::-webkit-scrollbar,
+    .factors-list::-webkit-scrollbar,
+    .options-grid::-webkit-scrollbar,
+    .plan-screen::-webkit-scrollbar,
+    .diagnosis-screen::-webkit-scrollbar {
+        width: 3px;
+    }
+    
+    .symptoms-grid::-webkit-scrollbar-track,
+    .factors-list::-webkit-scrollbar-track,
+    .options-grid::-webkit-scrollbar-track,
+    .plan-screen::-webkit-scrollbar-track,
+    .diagnosis-screen::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.1);
+        border-radius: 2px;
+    }
+    
+    .symptoms-grid::-webkit-scrollbar-thumb,
+    .factors-list::-webkit-scrollbar-thumb,
+    .options-grid::-webkit-scrollbar-thumb,
+    .plan-screen::-webkit-scrollbar-thumb,
+    .diagnosis-screen::-webkit-scrollbar-thumb {
+        background: rgba(255, 107, 157, 0.3);
+        border-radius: 2px;
+    }
+    
+    /* Responsividade específica para telas muito pequenas */
+    @media (max-width: 320px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .price-grid {
+            flex-direction: column;
+            gap: clamp(8px, 2vw, 12px);
+        }
+        
+        .security-badges {
+            flex-direction: column;
+            gap: clamp(8px, 2vw, 12px);
+        }
+        
+        .scale-grid {
+            grid-template-columns: repeat(5, 1fr);
+            gap: clamp(6px, 1.5vw, 10px);
+        }
+    }
+    
+    /* Landscape em mobile */
+    @media (max-height: 500px) and (orientation: landscape) {
+        .screen {
+            justify-content: flex-start;
+            padding-top: clamp(12px, 3vw, 20px);
+        }
+        
+        .symptoms-grid,
+        .factors-list,
+        .options-grid {
+            max-height: 40vh;
+        }
+        
+        .welcome-title {
+            margin-bottom: clamp(8px, 2vw, 16px);
+            font-size: clamp(20px, 5vw, 28px);
+        }
+        
+        .welcome-subtitle {
+            margin-bottom: clamp(16px, 4vw, 24px);
+            font-size: clamp(12px, 3vw, 16px);
+        }
+        
+        .screen-title {
+            margin-bottom: clamp(12px, 3vw, 20px);
+            font-size: clamp(16px, 4vw, 22px);
+        }
+        
+        .risk-meter {
+            padding: clamp(12px, 3vw, 20px);
+        }
+        
+        .risk-percentage {
+            font-size: clamp(28px, 7vw, 40px);
+        }
+    }
+    
+    /* Safe area para dispositivos com notch */
+    @supports (padding: max(0px)) {
+        .screen {
+            padding-left: max(clamp(16px, 4vw, 24px), env(safe-area-inset-left));
+            padding-right: max(clamp(16px, 4vw, 24px), env(safe-area-inset-right));
+            padding-bottom: max(clamp(20px, 5vw, 40px), env(safe-area-inset-bottom) + 20px);
+        }
+        
+        .continue-btn {
+            left: max(clamp(16px, 4vw, 24px), env(safe-area-inset-left));
+            right: max(clamp(16px, 4vw, 24px), env(safe-area-inset-right));
+            bottom: max(clamp(20px, 5vw, 40px), env(safe-area-inset-bottom) + 20px);
+            width: calc(100% - max(clamp(32px, 8vw, 48px), env(safe-area-inset-left) + env(safe-area-inset-right)));
+        }
+    }
+
+    /* Ajustes específicos para diferentes alturas de tela */
+    @media screen and (max-height: 600px) {
+        .symptoms-grid,
+        .factors-list,
+        .options-grid {
+            margin-bottom: clamp(50px, 12.5vw, 80px);
+            max-height: calc(100vh - clamp(180px, 45vw, 280px));
+        }
+    }
+
+    @media screen and (max-height: 700px) {
+        .continue-btn {
+            bottom: clamp(30px, 7.5vw, 50px);
+            padding: clamp(12px, 3vw, 18px) clamp(20px, 5vw, 30px);
+            font-size: clamp(13px, 3.25vw, 17px);
+        }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <!-- Partículas flutuantes -->
+    <div class="particles" id="particles"></div>
+    
+    <!-- Tela 1 - Boas-vindas -->
+    <div class="screen welcome-screen active" id="screen1">
+        <div class="product-brand" style="font-size: clamp(16px, 4vw, 22px); font-weight: 700; color: #8b4a6b; margin-bottom: clamp(20px, 5vw, 32px); text-align: center; letter-spacing: 1px;">CÂNDIDA ZERO</div>
+        <h1 class="welcome-title">Diagnóstico Íntimo Discreto</h1>
+        <p class="welcome-subtitle">Vamos analisar discretamente os sinais que seu corpo está te dando.</p>
+        
+        <!-- Prova Social Inicial -->
+        <div class="social-proof-initial" style="background: rgba(255, 255, 255, 0.2); padding: clamp(12px, 3vw, 18px); border-radius: 15px; margin-bottom: clamp(20px, 5vw, 32px); text-align: center;">
+            <div style="font-size: clamp(20px, 5vw, 28px); font-weight: 700; color: #ffd700; margin-bottom: clamp(6px, 1.5vw, 10px);">+15.247</div>
+            <div style="font-size: clamp(12px, 3vw, 16px); color: white; opacity: 0.9;">mulheres já descobriram a causa real</div>
+        </div>
+        
+        <!-- Timer de Urgência -->
+        <div class="urgency-timer-initial" style="background: rgba(255, 69, 69, 0.9); padding: clamp(8px, 2vw, 12px); border-radius: 20px; margin-bottom: clamp(20px, 5vw, 32px); text-align: center;">
+            <div style="font-size: clamp(10px, 2.5vw, 14px); color: white; font-weight: 600;">⏰ Diagnóstico gratuito disponível por mais:</div>
+            <div style="font-size: clamp(16px, 4vw, 22px); color: #ffd700; font-weight: 700;" id="initialTimer">19:47</div>
+        </div>
+        
+        <button class="btn-primary" onclick="nextScreen()">Começar Diagnóstico Gratuito</button>
+    </div>
+    
+    <!-- Tela 2 - Sintomas -->
+    <div class="screen symptoms-screen" id="screen2">
+        <!-- Barra de Progresso -->
+        <div class="progress-bar" style="width: 100%; background: rgba(255,255,255,0.2); border-radius: 10px; margin-bottom: clamp(16px, 4vw, 24px); overflow: hidden;">
+            <div style="width: 10%; height: clamp(6px, 1.5vw, 10px); background: linear-gradient(90deg, #ffd700, #ffed4a); border-radius: 10px; transition: width 0.5s ease;"></div>
+        </div>
+        <div style="text-align: center; font-size: clamp(10px, 2.5vw, 14px); color: #a0616a; margin-bottom: clamp(12px, 3vw, 18px); font-weight: 500;">Etapa 1 de 10 - 10% concluído</div>
+        
+        <h2 class="screen-title">Você sentiu algum desses sintomas?</h2>
+        <div class="selection-counter" id="symptomsCounter">Selecione quantos se aplicam (0 selecionados)</div>
+        <div class="symptoms-grid">
+            <div class="symptom-card" onclick="toggleSymptom(this)" data-symptom="coceira">
+                <span class="symptom-icon">🔥</span>
+                <div class="symptom-text">Coceira interna</div>
+            </div>
+            <div class="symptom-card" onclick="toggleSymptom(this)" data-symptom="ardencia">
+                <span class="symptom-icon">💧</span>
+                <div class="symptom-text">Ardência ao urinar</div>
+            </div>
+            <div class="symptom-card" onclick="toggleSymptom(this)" data-symptom="corrimento">
+                <span class="symptom-icon">🌙</span>
+                <div class="symptom-text">Corrimento branco</div>
+            </div>
+            <div class="symptom-card" onclick="toggleSymptom(this)" data-symptom="desconforto">
+                <span class="symptom-icon">💔</span>
+                <div class="symptom-text">Desconforto durante o sexo</div>
+            </div>
+            <div class="symptom-card" onclick="toggleSymptom(this)" data-symptom="autoestima">
+                <span class="symptom-icon">😔</span>
+                <div class="symptom-text">Isso afeta minha autoestima</div>
+            </div>
+            <div class="symptom-card" onclick="toggleSymptom(this)" data-symptom="vergonha">
+                <span class="symptom-icon">🙈</span>
+                <div class="symptom-text">Tenho vergonha de procurar ajuda médica</div>
+            </div>
+            <div class="symptom-card" onclick="toggleSymptom(this)" data-symptom="parceiro">
+                <span class="symptom-icon">💔</span>
+                <div class="symptom-text">Meu parceiro não entende</div>
+            </div>
+            <div class="symptom-card" onclick="toggleSymptom(this)" data-symptom="nenhum">
+                <span class="symptom-icon">✨</span>
+                <div class="symptom-text">Nenhum desses</div>
+            </div>
+        </div>
+        <button class="btn-primary continue-btn" id="symptomsBtn" onclick="nextScreen()">Próximo</button>
+    </div>
+
+    <!-- Nova Tela 2.5 - Agravamento -->
+    <div class="screen agravamento-screen" id="screen2_5">
+        <div class="progress-bar" style="width: 100%; background: rgba(255,255,255,0.3); border-radius: 10px; margin-bottom: clamp(16px, 4vw, 24px); overflow: hidden; border: 2px solid rgba(255,255,255,0.4);">
+            <div style="width: 25%; height: clamp(6px, 1.5vw, 10px); background: linear-gradient(90deg, #00ff88, #00cc6a); border-radius: 10px; transition: width 0.5s ease; box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);"></div>
+        </div>
+        <div style="text-align: center; font-size: clamp(12px, 3vw, 16px); color: #ffffff; margin-bottom: clamp(12px, 3vw, 18px); font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Etapa 2 de 10 - 25% concluído</div>
+        
+        <div class="alert-warning" style="background: linear-gradient(135deg, #ff3333, #cc1a1a); padding: clamp(20px, 5vw, 28px); border-radius: 20px; margin-bottom: clamp(24px, 6vw, 32px); text-align: center; border: 3px solid rgba(255,255,255,0.2); box-shadow: 0 8px 32px rgba(255, 51, 51, 0.4);">
+            <div style="font-size: clamp(28px, 7vw, 40px); margin-bottom: clamp(12px, 3vw, 18px); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">⚠️</div>
+            <h2 style="font-size: clamp(20px, 5vw, 26px); font-weight: 800; color: #ffffff; margin-bottom: clamp(12px, 3vw, 18px); line-height: 1.2; text-shadow: 0 2px 6px rgba(0,0,0,0.4);">ATENÇÃO: Seus sintomas podem estar piorando!</h2>
+            <p style="font-size: clamp(15px, 4vw, 19px); color: #ffffff; line-height: 1.4; font-weight: 500; text-shadow: 0 1px 3px rgba(0,0,0,0.3);">Baseado no que você relatou, identificamos padrões que indicam agravamento progressivo da candidíase.</p>
+        </div>
+
+        <div class="agravamento-reasons" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2)); padding: clamp(20px, 5vw, 28px); border-radius: 20px; margin-bottom: clamp(24px, 6vw, 32px); border: 2px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px);">
+            <h3 style="font-size: clamp(18px, 4.5vw, 22px); font-weight: 700; color: #ffffff; margin-bottom: clamp(16px, 4vw, 24px); text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Por que isso está acontecendo:</h3>
+            <div style="display: flex; flex-direction: column; gap: clamp(16px, 4vw, 20px);">
+                <div style="display: flex; align-items: center; gap: clamp(12px, 3vw, 16px); background: rgba(255,255,255,0.1); padding: clamp(12px, 3vw, 16px); border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
+                    <span style="font-size: clamp(20px, 5vw, 26px); filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));">🦠</span>
+                    <span style="font-size: clamp(14px, 3.5vw, 18px); color: #ffffff; line-height: 1.4; font-weight: 500; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">Fungos se multiplicam rapidamente em ambiente desequilibrado</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: clamp(12px, 3vw, 16px); background: rgba(255,255,255,0.1); padding: clamp(12px, 3vw, 16px); border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
+                    <span style="font-size: clamp(20px, 5vw, 26px); filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));">⚡</span>
+                    <span style="font-size: clamp(14px, 3.5vw, 18px); color: #ffffff; line-height: 1.4; font-weight: 500; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">Tratamentos inadequados criam resistência</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: clamp(12px, 3vw, 16px); background: rgba(255,255,255,0.1); padding: clamp(12px, 3vw, 16px); border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
+                    <span style="font-size: clamp(20px, 5vw, 26px); filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));">🔄</span>
+                    <span style="font-size: clamp(14px, 3.5vw, 18px); color: #ffffff; line-height: 1.4; font-weight: 500; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">Cada reincidência é mais difícil de tratar</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; background: linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.15)); padding: clamp(16px, 4vw, 22px); border-radius: 20px; margin-bottom: clamp(24px, 6vw, 32px); border: 2px solid rgba(255,255,255,0.3); backdrop-filter: blur(10px);">
+            <div style="font-size: clamp(14px, 3.5vw, 18px); color: #ffffff; margin-bottom: clamp(8px, 2vw, 12px); font-weight: 600; text-shadow: 0 1px 3px rgba(0,0,0,0.3);">📊 Mulheres com perfil similar relataram:</div>
+            <div style="font-size: clamp(24px, 6vw, 32px); font-weight: 800; color: #00ff88; text-shadow: 0 2px 6px rgba(0,0,0,0.4); filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.3));">94% de melhora</div>
+            <div style="font-size: clamp(14px, 3.5vw, 18px); color: #ffffff; font-weight: 500; text-shadow: 0 1px 3px rgba(0,0,0,0.3);">com protocolo personalizado</div>
+        </div>
+
+        <button class="btn-primary agravamento-btn" onclick="nextScreen()" style="background: linear-gradient(135deg, #00ff88, #00cc6a); color: #000000; font-weight: 800; font-size: clamp(16px, 4vw, 20px); padding: clamp(16px, 4vw, 22px); border-radius: 50px; border: 3px solid #ffffff; box-shadow: 0 8px 32px rgba(0, 255, 136, 0.4); text-shadow: none; animation: greenPulse 2s ease-in-out infinite; position: relative; overflow: hidden;">
+            <span style="position: relative; z-index: 2;">Continuar Análise</span>
+        </button>
+    </div>
+    
+    <!-- Tela 3 - Fatores -->
+    <div class="screen factors-screen" id="screen3">
+        <h2 class="screen-title">Alguma dessas situações se aplica a você?</h2>
+        <div class="selection-counter" id="factorsCounter">Selecione quantos se aplicam (0 selecionados)</div>
+        <div class="factors-list">
+            <div class="factor-item" onclick="toggleFactor(this)" data-factor="antibioticos">
+                <div class="factor-checkbox"></div>
+                <div class="factor-text">Uso recente de antibióticos</div>
+            </div>
+            <div class="factor-item" onclick="toggleFactor(this)" data-factor="estresse">
+                <div class="factor-checkbox"></div>
+                <div class="factor-text">Estresse alto</div>
+            </div>
+            <div class="factor-item" onclick="toggleFactor(this)" data-factor="imunidade">
+                <div class="factor-checkbox"></div>
+                <div class="factor-text">Baixa imunidade</div>
+            </div>
+            <div class="factor-item" onclick="toggleFactor(this)" data-factor="alimentacao">
+                <div class="factor-checkbox"></div>
+                <div class="factor-text">Má alimentação</div>
+            </div>
+            <div class="factor-item" onclick="toggleFactor(this)" data-factor="relacoes">
+                <div class="factor-checkbox"></div>
+                <div class="factor-text">Relações sexuais frequentes</div>
+            </div>
+        </div>
+        <button class="btn-primary continue-btn" id="factorsBtn" onclick="nextScreen()">Próximo</button>
+    </div>
+    
+    <!-- Tela 4 - Escala de Coceira -->
+    <div class="screen question-screen" id="screen4">
+        <h2 class="screen-title">Em uma escala de 1 a 10, o quanto sua coceira diária interfere no seu bem-estar?</h2>
+        <div class="scale-labels">
+            <span>Nada</span>
+            <span>Extremamente</span>
+        </div>
+        <div class="scale-grid" id="scaleGrid">
+            <div class="scale-item" onclick="selectScale(this, 1)" data-scale="1">
+                <div class="scale-number">1</div>
+            </div>
+            <div class="scale-item" onclick="selectScale(this, 2)" data-scale="2">
+                <div class="scale-number">2</div>
+            </div>
+            <div class="scale-item" onclick="selectScale(this, 3)" data-scale="3">
+                <div class="scale-number">3</div>
+            </div>
+            <div class="scale-item" onclick="selectScale(this, 4)" data-scale="4">
+                <div class="scale-number">4</div>
+            </div>
+            <div class="scale-item" onclick="selectScale(this, 5)" data-scale="5">
+                <div class="scale-number">5</div>
+            </div>
+            <div class="scale-item" onclick="selectScale(this, 6)" data-scale="6">
+                <div class="scale-number">6</div>
+            </div>
+            <div class="scale-item" onclick="selectScale(this, 7)" data-scale="7">
+                <div class="scale-number">7</div>
+            </div>
+            <div class="scale-item" onclick="selectScale(this, 8)" data-scale="8">
+                <div class="scale-number">8</div>
+            </div>
+            <div class="scale-item" onclick="selectScale(this, 9)" data-scale="9">
+                <div class="scale-number">9</div>
+            </div>
+            <div class="scale-item" onclick="selectScale(this, 10)" data-scale="10">
+                <div class="scale-number">10</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tela 5 - Constrangimento -->
+    <div class="screen question-screen alt1" id="screen5">
+        <h2 class="screen-title">Você já se sentiu constrangida ou evitou um encontro por medo do desconforto íntimo?</h2>
+        <div class="options-grid">
+            <div class="option-card" onclick="selectOption(this, 'constrangimento', 'sim-frequente')" data-option="sim-frequente">
+                <span class="option-icon">😔</span>
+                <div class="option-text">Sim, frequentemente</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'constrangimento', 'sim-algumas')" data-option="sim-algumas">
+                <span class="option-icon">😟</span>
+                <div class="option-text">Sim, algumas vezes</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'constrangimento', 'raramente')" data-option="raramente">
+                <span class="option-icon">😐</span>
+                <div class="option-text">Raramente</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'constrangimento', 'nunca')" data-option="nunca">
+                <span class="option-icon">😊</span>
+                <div class="option-text">Nunca</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tela 6 - Frequência Banheiro -->
+    <div class="screen question-screen alt2" id="screen6">
+        <h2 class="screen-title">Quantas vezes por mês você se sente "presa" pela hora de ir ao banheiro, esperando minimizar a ardência?</h2>
+        <div class="options-grid">
+            <div class="option-card" onclick="selectOption(this, 'banheiro', 'diariamente')" data-option="diariamente">
+                <span class="option-icon">🚽</span>
+                <div class="option-text">Diariamente</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'banheiro', 'varias-semana')" data-option="varias-semana">
+                <span class="option-icon">📅</span>
+                <div class="option-text">Várias vezes por semana</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'banheiro', 'algumas-mes')" data-option="algumas-mes">
+                <span class="option-icon">📆</span>
+                <div class="option-text">Algumas vezes por mês</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'banheiro', 'raramente')" data-option="raramente">
+                <span class="option-icon">⏰</span>
+                <div class="option-text">Raramente</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'banheiro', 'nunca')" data-option="nunca">
+                <span class="option-icon">✅</span>
+                <div class="option-text">Nunca</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tela 7 - Remédios Tentados -->
+    <div class="screen question-screen alt3" id="screen7">
+        <h2 class="screen-title">Você já tentou remédios caseiros ou tratamentos que não funcionaram como esperava?</h2>
+        <div class="selection-counter" id="remediosCounter">Selecione quantos se aplicam (0 selecionados)</div>
+        <div class="options-grid">
+            <div class="option-card" onclick="toggleMultiOption(this, 'remedios', 'farmacia')" data-option="farmacia">
+                <span class="option-icon">💊</span>
+                <div class="option-text">Remédios de farmácia</div>
+            </div>
+            <div class="option-card" onclick="toggleMultiOption(this, 'remedios', 'caseiros')" data-option="caseiros">
+                <span class="option-icon">🌿</span>
+                <div class="option-text">Remédios caseiros</div>
+            </div>
+            <div class="option-card" onclick="toggleMultiOption(this, 'remedios', 'probioticos')" data-option="probioticos">
+                <span class="option-icon">🥛</span>
+                <div class="option-text">Probióticos</div>
+            </div>
+            <div class="option-card" onclick="toggleMultiOption(this, 'remedios', 'pomadas')" data-option="pomadas">
+                <span class="option-icon">🧴</span>
+                <div class="option-text">Pomadas e cremes</div>
+            </div>
+            <div class="option-card" onclick="toggleMultiOption(this, 'remedios', 'dietas')" data-option="dietas">
+                <span class="option-icon">🥗</span>
+                <div class="option-text">Mudanças na dieta</div>
+            </div>
+            <div class="option-card" onclick="toggleMultiOption(this, 'remedios', 'nenhum')" data-option="nenhum">
+                <span class="option-icon">❌</span>
+                <div class="option-text">Nenhum tratamento</div>
+            </div>
+        </div>
+        <button class="btn-primary continue-btn" id="remediosBtn" onclick="nextScreen()">Próximo</button>
+    </div>
+
+    <!-- Tela 8 - Vídeo Educativo -->
+    <div class="screen video-screen" id="screen8">
+        <div class="video-container">
+            <h2 class="video-title">🎯 Dicas VALIOSAS para Acelerar sua Cura</h2>
+            <p class="video-subtitle">Aqui vão umas dicas VALIOSAS do que comer e do que evitar de comer para tratar sua candidíase o mais rápido possível...</p>
+            
+            <div class="video-wrapper">
+                <div class="video-intro-text">
+                    📱 <strong>Vídeo Exclusivo:</strong> Descubra os alimentos que podem estar sabotando sua recuperação e quais aceleram a cura da candidíase!
+                </div>
+                
+                <p style="text-align: center; color: #8b4a6b; font-size: clamp(13px, 3.25vw, 17px); font-weight: 600; margin-bottom: clamp(12px, 3vw, 16px); line-height: 1.4;">
+                    Clique no botão azul para iniciar o vídeo.
+                </p>
+                
+                <div class="video-player-container" id="videoPlayerContainer">
+                    <wistia-player media-id="4icy3hbkxa" aspect="0.5625" style="display: none;"></wistia-player>
+                </div>
+                
+                <button class="btn-play-video" onclick="playVideo()" id="playVideoBtn">
+                    <span class="play-icon">▶️</span>
+                    Clique aqui para iniciar o vídeo
+                </button>
+            </div>
+
+            <div class="video-benefits">
+                <div class="benefits-title">✨ O que você vai aprender:</div>
+                <div class="benefit-item">
+                    <span class="benefit-icon">🚫</span>
+                    <span>Alimentos que alimentam a candidíase</span>
+                </div>
+                <div class="benefit-item">
+                    <span class="benefit-icon">✅</span>
+                    <span>Superalimentos anti-fungo</span>
+                </div>
+                <div class="benefit-item">
+                    <span class="benefit-icon">⚡</span>
+                    <span>Como acelerar a recuperação em 72h</span>
+                </div>
+                <div class="benefit-item">
+                    <span class="benefit-icon">🎯</span>
+                    <span>Protocolo alimentar específico</span>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="nextScreen()">Continuar Diagnóstico</button>
+        </div>
+    </div>
+    
+    <!-- Tela 9 - Frequência Relações -->
+    <div class="screen question-screen" id="screen9">
+        <h2 class="screen-title">Com que frequência você interrompe relações ou evita momentos íntimos por medo da dor?</h2>
+        <div class="options-grid">
+            <div class="option-card" onclick="selectOption(this, 'relacoes', 'sempre')" data-option="sempre">
+                <span class="option-icon">😰</span>
+                <div class="option-text">Sempre evito</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'relacoes', 'frequentemente')" data-option="frequentemente">
+                <span class="option-icon">😟</span>
+                <div class="option-text">Frequentemente</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'relacoes', 'algumas-vezes')" data-option="algumas-vezes">
+                <span class="option-icon">😐</span>
+                <div class="option-text">Algumas vezes</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'relacoes', 'raramente')" data-option="raramente">
+                <span class="option-icon">🙂</span>
+                <div class="option-text">Raramente</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'relacoes', 'nunca')" data-option="nunca">
+                <span class="option-icon">😊</span>
+                <div class="option-text">Nunca</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tela 10 - Tipo de Corrimento -->
+    <div class="screen question-screen alt1" id="screen10">
+        <h2 class="screen-title">Se você precisasse descrever seu tipo de corrimento (consistência, cor, cheiro), qual seria?</h2>
+        <div class="options-grid">
+            <div class="option-card" onclick="selectOption(this, 'corrimento', 'branco-espesso')" data-option="branco-espesso">
+                <span class="option-icon">🤍</span>
+                <div class="option-text">Branco e espesso</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'corrimento', 'amarelado')" data-option="amarelado">
+                <span class="option-icon">💛</span>
+                <div class="option-text">Amarelado</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'corrimento', 'com-odor')" data-option="com-odor">
+                <span class="option-icon">👃</span>
+                <div class="option-text">Com odor forte</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'corrimento', 'aquoso')" data-option="aquoso">
+                <span class="option-icon">💧</span>
+                <div class="option-text">Aquoso/líquido</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'corrimento', 'normal')" data-option="normal">
+                <span class="option-icon">✅</span>
+                <div class="option-text">Normal/sem alterações</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tela 11 - Expectativa de Alívio -->
+    <div class="screen question-screen alt2" id="screen11">
+        <h2 class="screen-title">Se existisse um plano que prometesse alívio em até 72h, em que medida isso mudaria a sua rotina/autoestima?</h2>
+        <div class="options-grid">
+            <div class="option-card" onclick="selectOption(this, 'expectativa', 'completamente')" data-option="completamente">
+                <span class="option-icon">🌟</span>
+                <div class="option-text">Mudaria completamente</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'expectativa', 'muito')" data-option="muito">
+                <span class="option-icon">✨</span>
+                <div class="option-text">Mudaria muito</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'expectativa', 'moderadamente')" data-option="moderadamente">
+                <span class="option-icon">💫</span>
+                <div class="option-text">Mudaria moderadamente</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'expectativa', 'pouco')" data-option="pouco">
+                <span class="option-icon">⭐</span>
+                <div class="option-text">Mudaria pouco</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'expectativa', 'nao-mudaria')" data-option="nao-mudaria">
+                <span class="option-icon">😐</span>
+                <div class="option-text">Não mudaria</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tela 12 - Disposição Protocolo -->
+    <div class="screen question-screen alt3" id="screen12">
+        <h2 class="screen-title">Você estaria disposta a seguir um protocolo simples se isso evitasse novas crises nos próximos meses?</h2>
+        <div class="options-grid">
+            <div class="option-card" onclick="selectOption(this, 'protocolo', 'sim-dedicada')" data-option="sim-dedicada">
+                <span class="option-icon">💪</span>
+                <div class="option-text">Sim, totalmente dedicada</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'protocolo', 'sim-esforco')" data-option="sim-esforco">
+                <span class="option-icon">👍</span>
+                <div class="option-text">Sim, faria um esforço</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'protocolo', 'talvez')" data-option="talvez">
+                <span class="option-icon">🤔</span>
+                <div class="option-text">Talvez, dependendo</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'protocolo', 'dificil')" data-option="dificil">
+                <span class="option-icon">😅</span>
+                <div class="option-text">Seria difícil</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'protocolo', 'nao')" data-option="nao">
+                <span class="option-icon">❌</span>
+                <div class="option-text">Não conseguiria</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tela 13 - Motivo para Iniciar -->
+    <div class="screen question-screen" id="screen13">
+        <h2 class="screen-title">Qual é o principal motivo que te faria iniciar um tratamento agora?</h2>
+        <div class="options-grid">
+            <div class="option-card" onclick="selectOption(this, 'motivo', 'dor-insuportavel')" data-option="dor-insuportavel">
+                <span class="option-icon">😣</span>
+                <div class="option-text">Dor insuportável</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'motivo', 'relacionamento')" data-option="relacionamento">
+                <span class="option-icon">💕</span>
+                <div class="option-text">Impacto no relacionamento</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'motivo', 'autoestima')" data-option="autoestima">
+                <span class="option-icon">💔</span>
+                <div class="option-text">Baixa autoestima</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'motivo', 'trabalho')" data-option="trabalho">
+                <span class="option-icon">💼</span>
+                <div class="option-text">Interferência no trabalho</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'motivo', 'qualidade-vida')" data-option="qualidade-vida">
+                <span class="option-icon">🌈</span>
+                <div class="option-text">Qualidade de vida</div>
+            </div>
+            <div class="option-card" onclick="selectOption(this, 'motivo', 'prevencao')" data-option="prevencao">
+                <span class="option-icon">🛡️</span>
+                <div class="option-text">Prevenção</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tela 14 - Análise MELHORADA -->
+    <div class="screen analysis-screen" id="screen14">
+        <div class="analysis-container">
+            <h2 class="analysis-title">Analisando seus dados...</h2>
+            
+            <div class="analysis-steps">
+                <div class="analysis-item" data-step="1">
+                    <div class="analysis-icon blue">🔍</div>
+                    <div class="analysis-text">Detectando atividade hormonal...</div>
+                </div>
+                <div class="analysis-item" data-step="2">
+                    <div class="analysis-icon green">🧪</div>
+                    <div class="analysis-text">Rastreando padrões fúngicos...</div>
+                </div>
+                <div class="analysis-item" data-step="3">
+                    <div class="analysis-icon blue">🛡️</div>
+                    <div class="analysis-text">Cruzando fatores imunológicos...</div>
+                </div>
+                <div class="analysis-item warning" data-step="4">
+                    <div class="analysis-icon yellow">⚠️</div>
+                    <div class="analysis-text">Risco elevado identificado</div>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="analysisProgressFill"></div>
+                    <div class="progress-percentage" id="analysisProgressPercentage">0%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tela 15 - Diagnóstico -->
+    <div class="screen diagnosis-screen" id="screen15">
+        <div class="diagnosis-container">
+            <div class="alert-badge">⚠️ Diagnóstico Concluído</div>
+    
+            <div class="risk-meter">
+                <div class="risk-percentage" id="riskPercentage">84%</div>
+                <div class="risk-label">Nível de Risco de Crise</div>
+                <div class="risk-status">ALTO RISCO</div>
+            </div>
+    
+            <h2 class="diagnosis-title">Seu corpo está enviando sinais de alerta!</h2>
+            <p class="diagnosis-subtitle">Baseado nas suas respostas, identificamos um padrão preocupante</p>
+    
+            <div class="symptoms-detected" id="symptomsDetected">
+                <div class="symptoms-title">🔍 Sintomas Identificados:</div>
+                <ul class="symptom-list" id="detectedSymptomsList">
+                    <!-- Será preenchido dinamicamente -->
+                </ul>
+            </div>
+    
+            <div class="warning-box">
+                <div class="warning-title">
+                    <span class="warning-icon">⚠️</span>
+                    ATENÇÃO: Situação Crítica
+                </div>
+                <p class="warning-text">A candidíase não tratada pode evoluir para infecções mais graves e afetar sua qualidade de vida drasticamente.</p>
+            </div>
+    
+            <div class="consequences-box">
+                <div class="consequences-title">❌ O que pode acontecer sem tratamento:</div>
+                <div class="consequence-item">
+                    <span class="consequence-icon">•</span>
+                    <span>Infecções recorrentes cada vez mais intensas</span>
+                </div>
+                <div class="consequence-item">
+                    <span class="consequence-icon">•</span>
+                    <span>Dor e desconforto durante relações íntimas</span>
+                </div>
+                <div class="consequence-item">
+                    <span class="consequence-icon">•</span>
+                    <span>Comprometimento da flora vaginal permanente</span>
+                </div>
+                <div class="consequence-item">
+                    <span class="consequence-icon">•</span>
+                    <span>Impacto na autoestima e relacionamentos</span>
+                </div>
+            </div>
+    
+            <div class="urgency-box">
+                <div class="urgency-title">⏰ Janela de Oportunidade</div>
+                <p class="urgency-text">Você tem uma janela de 72h para reverter este quadro naturalmente antes que se torne mais complexo.</p>
+            </div>
+    
+            <div class="countdown-timer">
+                <div class="countdown-label">Tempo para agir:</div>
+                <div class="countdown-time" id="countdownTimer">71:45:32</div>
+            </div>
+    
+            <div class="social-proof">
+                <div class="social-proof-number">+2.847</div>
+                <div>mulheres já reverteram este quadro nas últimas 48h</div>
+            </div>
+    
+            <button class="btn-primary btn-diagnosis-action" onclick="nextScreen()">🧬 Gerar Meu Plano Personalizado</button>
+        </div>
+    </div>
+
+    <!-- Nova Tela 15.5 - Custo da Inação -->
+    <div class="screen cost-inaction-screen" id="screen15_5">
+        <div class="progress-bar" style="width: 100%; background: rgba(255,255,255,0.2); border-radius: 10px; margin-bottom: clamp(16px, 4vw, 24px); overflow: hidden;">
+            <div style="width: 95%; height: clamp(6px, 1.5vw, 10px); background: linear-gradient(90deg, #ffd700, #ffed4a); border-radius: 10px; transition: width 0.5s ease;"></div>
+        </div>
+        <div style="text-align: center; font-size: clamp(10px, 2.5vw, 14px); color: white; margin-bottom: clamp(12px, 3vw, 18px); font-weight: 500;">Etapa 9 de 10 - 95% concluído</div>
+        
+        <div class="cost-header" style="text-align: center; margin-bottom: clamp(24px, 6vw, 32px);">
+            <div style="font-size: clamp(32px, 8vw, 48px); margin-bottom: clamp(12px, 3vw, 18px);">⏰</div>
+            <h2 style="font-size: clamp(20px, 5vw, 28px); font-weight: 700; color: white; margin-bottom: clamp(12px, 3vw, 18px); line-height: 1.2;">O que acontece se você não agir nos próximos 30 dias?</h2>
+            <p style="font-size: clamp(14px, 3.5vw, 18px); color: rgba(255,255,255,0.9); line-height: 1.4;">Baseado em dados reais de 8.247 mulheres que deixaram a candidíase sem tratamento adequado:</p>
+        </div>
+
+        <div class="consequences-list" style="margin-bottom: clamp(24px, 6vw, 32px);">
+            <div class="consequence-item" style="background: rgba(255,255,255,0.1); padding: clamp(16px, 4vw, 20px); border-radius: 15px; margin-bottom: clamp(12px, 3vw, 16px); border-left: 4px solid #ff4757;">
+                <div style="display: flex; align-items: center; gap: clamp(12px, 3vw, 16px);">
+                    <span style="font-size: clamp(24px, 6vw, 32px);">📈</span>
+                    <div>
+                        <div style="font-size: clamp(14px, 3.5vw, 18px); font-weight: 600; color: white; margin-bottom: clamp(4px, 1vw, 6px);">Aumento de 340% na intensidade</div>
+                        <div style="font-size: clamp(12px, 3vw, 16px); color: rgba(255,255,255,0.8);">Coceira e ardência se tornam insuportáveis</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="consequence-item" style="background: rgba(255,255,255,0.1); padding: clamp(16px, 4vw, 20px); border-radius: 15px; margin-bottom: clamp(12px, 3vw, 16px); border-left: 4px solid #ff4757;">
+                <div style="display: flex; align-items: center; gap: clamp(12px, 3vw, 16px);">
+                    <span style="font-size: clamp(24px, 6vw, 32px);">💰</span>
+                    <div>
+                        <div style="font-size: clamp(14px, 3.5vw, 18px); font-weight: 600; color: white; margin-bottom: clamp(4px, 1vw, 6px);">R$ 2.847 em gastos médicos</div>
+                        <div style="font-size: clamp(12px, 3vw, 16px); color: rgba(255,255,255,0.8);">Consultas, exames e medicamentos ineficazes</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="consequence-item" style="background: rgba(255,255,255,0.1); padding: clamp(16px, 4vw, 20px); border-radius: 15px; margin-bottom: clamp(12px, 3vw, 16px); border-left: 4px solid #ff4757;">
+                <div style="display: flex; align-items: center; gap: clamp(12px, 3vw, 16px);">
+                    <span style="font-size: clamp(24px, 6vw, 32px);">💔</span>
+                    <div>
+                        <div style="font-size: clamp(14px, 3.5vw, 18px); font-weight: 600; color: white; margin-bottom: clamp(4px, 1vw, 6px);">Relacionamento afetado</div>
+                        <div style="font-size: clamp(12px, 3vw, 16px); color: rgba(255,255,255,0.8);">73% relataram problemas na intimidade</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="consequence-item" style="background: rgba(255,255,255,0.1); padding: clamp(16px, 4vw, 20px); border-radius: 15px; margin-bottom: clamp(12px, 3vw, 16px); border-left: 4px solid #ff4757;">
+                <div style="display: flex; align-items: center; gap: clamp(12px, 3vw, 16px);">
+                    <span style="font-size: clamp(24px, 6vw, 32px);">🏥</span>
+                    <div>
+                        <div style="font-size: clamp(14px, 3.5vw, 18px); font-weight: 600; color: white; margin-bottom: clamp(4px, 1vw, 6px);">Infecções secundárias</div>
+                        <div style="font-size: clamp(12px, 3vw, 16px); color: rgba(255,255,255,0.8);">Cistite, vaginose e outras complicações</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="urgency-final" style="background: rgba(255, 69, 69, 0.9); padding: clamp(16px, 4vw, 24px); border-radius: 15px; margin-bottom: clamp(24px, 6vw, 32px); text-align: center;">
+            <div style="font-size: clamp(16px, 4vw, 20px); font-weight: 700; color: white; margin-bottom: clamp(8px, 2vw, 12px);">🚨 ÚLTIMAS 7 VAGAS DISPONÍVEIS HOJE</div>
+            <div style="font-size: clamp(12px, 3vw, 16px); color: rgba(255,255,255,0.9);">Timer expira em: <span id="finalTimer" style="font-weight: 700; color: #ffd700;">14:23</span></div>
+        </div>
+
+        <div class="social-validation" style="background: rgba(255,255,255,0.1); padding: clamp(12px, 3vw, 18px); border-radius: 15px; margin-bottom: clamp(24px, 6vw, 32px); text-align: center;">
+            <div style="font-size: clamp(12px, 3vw, 16px); color: rgba(255,255,255,0.8);">👥 <span id="onlineCounter">47</span> mulheres online agora</div>
+            <div style="font-size: clamp(10px, 2.5vw, 14px); color: rgba(255,255,255,0.7);" id="recentActions">Ana acabou de completar o diagnóstico</div>
+        </div>
+
+        <button class="btn-primary" onclick="nextScreen()">Ver Meu Protocolo Personalizado</button>
+    </div>
+
+    <!-- Tela 16 - Carregamento do Plano Personalizado -->
+    <div class="screen plan-loading-screen" id="screen16">
+        <div class="loading-container">
+            <div class="ai-avatar">🧬</div>
+            <h2 class="loading-title">Criando Seu Plano Personalizado</h2>
+            <p class="loading-subtitle">Nossa IA está analisando suas respostas para criar um protocolo único para o seu caso</p>
+            
+            <div class="loading-progress">
+                <div class="loading-progress-fill" id="loadingProgress"></div>
+            </div>
+            
+            <div class="loading-steps">
+                <div class="loading-step" id="step1">
+                    <span class="step-icon">🔍</span>
+                    <span class="step-text">Analisando seu perfil hormonal...</span>
+                </div>
+                <div class="loading-step" id="step2">
+                    <span class="step-icon">🧪</span>
+                    <span class="step-text">Identificando causas específicas...</span>
+                </div>
+                <div class="loading-step" id="step3">
+                    <span class="step-icon">🌿</span>
+                    <span class="step-text">Selecionando ingredientes naturais...</span>
+                </div>
+                <div class="loading-step" id="step4">
+                    <span class="step-icon">📋</span>
+                    <span class="step-text">Montando protocolo personalizado...</span>
+                </div>
+                <div class="loading-step" id="step5">
+                    <span class="step-icon">✨</span>
+                    <span class="step-text">Finalizando seu plano exclusivo...</span>
+                </div>
+            </div>
+
+            <div class="personalization-info">
+                <div class="personalization-title">🎯 Personalizações Baseadas no Seu Perfil:</div>
+                <div class="personalization-item" id="personalItem1">
+                    <span class="personalization-icon">•</span>
+                    <span>Protocolo adaptado aos seus sintomas específicos</span>
+                </div>
+                <div class="personalization-item" id="personalItem2">
+                    <span class="personalization-icon">•</span>
+                    <span>Cronograma baseado no seu nível de risco</span>
+                </div>
+                <div class="personalization-item" id="personalItem3">
+                    <span class="personalization-icon">•</span>
+                    <span>Receitas exclusivas para o seu caso</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tela 17 - Plano Personalizado COMPLETO -->
+    <div class="screen plan-screen" id="screen17">
+        <div class="plan-container">
+            <!-- Header Exclusivo -->
+            <div class="exclusive-header">
+                <div class="exclusive-badge">🎯 Plano 100% Personalizado</div>
+                <h2 class="plan-title-new">Seu Protocolo Exclusivo de Cura Está Pronto!</h2>
+                <p class="plan-subtitle-new">Criado especificamente para o SEU perfil e sintomas únicos</p>
+            </div>
+
+            <!-- Estatísticas Personalizadas -->
+            <div class="personalized-stats">
+                <div class="stats-title">
+                    <span class="summary-icon">📊</span>
+                    Análise Completa do Seu Caso
+                </div>
+                <div class="stats-grid" id="personalizedStats">
+                    <!-- Será preenchido dinamicamente -->
+                </div>
+                <div class="urgency-banner">
+                    <div class="urgency-text">⏰ Oferta válida apenas por:</div>
+                    <div class="timer-display" id="offerTimer">14:32</div>
+                </div>
+            </div>
+
+            <!-- Identificação do Perfil Vaginal -->
+            <div class="vaginal-profile-section">
+                <div class="profile-title">
+                    <span class="profile-icon">🔬</span>
+                    Identificação do Perfil Vaginal
+                </div>
+                <div class="profile-card" id="vaginalProfile">
+                    <div class="profile-header">
+                        <div class="profile-type-label">Tipo identificado:</div>
+                        <div class="profile-type-name" id="profileTypeName">Flora Sensível Tipo-B</div>
+                    </div>
+                    <div class="profile-description" id="profileDescription">
+                        Reação comum a fungos, estresse e antibióticos. Requer intervenção suave e contínua.
+                    </div>
+                    <div class="profile-badge">
+                        <span class="badge-icon">🧬</span>
+                        <span>Análise Microbiológica Completa</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Insights Personalizados -->
+            <div class="analysis-summary-new">
+                <div class="summary-title-new">
+                    <span class="summary-icon">🔬</span>
+                    O Que Descobrimos Sobre Você
+                </div>
+                <div class="personal-insights" id="personalInsights">
+                    <!-- Será preenchido dinamicamente -->
+                </div>
+            </div>
+
+            <!-- Protocolo Detalhado -->
+            <div class="protocol-section-new">
+                <div class="protocol-title-new">
+                    <span class="summary-icon">📋</span>
+                    Seu Protocolo de Tratamento Personalizado
+                </div>
+                <div class="protocol-grid">
+                    <div class="protocol-card">
+                        <div class="protocol-header">
+                            <span class="protocol-check-new">✔️</span>
+                            <span class="protocol-title-item">Dieta Anti-Candidíase Personalizada</span>
+                        </div>
+                        <div class="protocol-description">Baseada nos seus fatores de risco específicos e preferências alimentares</div>
+                    </div>
+                    <div class="protocol-card">
+                        <div class="protocol-header">
+                            <span class="protocol-check-new">✔️</span>
+                            <span class="protocol-title-item">Cronograma de Recuperação Acelerada</span>
+                        </div>
+                        <div class="protocol-description">Plano de 21 dias adaptado ao seu nível de urgência</div>
+                    </div>
+                    <div class="protocol-card">
+                        <div class="protocol-header">
+                            <span class="protocol-check-new">✔️</span>
+                            <span class="protocol-title-item">Receitas Exclusivas Anti-Fungo</span>
+                        </div>
+                        <div class="protocol-description">Shots, chás e refeições criados para o seu caso específico</div>
+                    </div>
+                    <div class="protocol-card">
+                        <div class="protocol-header">
+                            <span class="protocol-check-new">✔️</span>
+                            <span class="protocol-title-item">Suplementação Direcionada</span>
+                        </div>
+                        <div class="protocol-description">Lista exata de probióticos e nutrientes para seu perfil</div>
+                    </div>
+                    <div class="protocol-card">
+                        <div class="protocol-header">
+                            <span class="protocol-check-new">✔️</span>
+                            <span class="protocol-title-item">Acompanhamento Semanal VIP</span>
+                        </div>
+                        <div class="protocol-description">Acesso exclusivo ao grupo de suporte e ajustes no protocolo</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Depoimentos Personalizados -->
+            <div class="testimonial-section">
+                <div class="testimonial-title">💬 Mulheres com perfil similar ao seu:</div>
+                <div class="testimonial-card" id="testimonial1">
+                    <!-- Será preenchido dinamicamente -->
+                </div>
+                <div class="testimonial-card" id="testimonial2">
+                    <!-- Será preenchido dinamicamente -->
+                </div>
+            </div>
+
+            <!-- Bônus Super Valorizados -->
+            <div class="bonus-section-super">
+                <div class="bonus-title-super">🎁 Bônus Exclusivos Inclusos</div>
+                <div class="bonus-value">
+                    <div class="bonus-value-text">Valor total dos bônus:</div>
+                    <div class="bonus-value-amount">R$ 297,00</div>
+                </div>
+                <div class="bonus-items-grid">
+                    <div class="bonus-item-super">
+                        <span class="bonus-item-icon">📱</span>
+                        <div class="bonus-item-content">
+                            <div class="bonus-item-title">App de Acompanhamento Diário</div>
+                            <div class="bonus-item-desc">Monitore seus sintomas e progresso</div>
+                        </div>
+                    </div>
+                    <div class="bonus-item-super">
+                        <span class="bonus-item-icon">👩‍⚕️</span>
+                        <div class="bonus-item-content">
+                            <div class="bonus-item-title">Consulta com Especialista</div>
+                            <div class="bonus-item-desc">30 min de orientação personalizada</div>
+                        </div>
+                    </div>
+                    <div class="bonus-item-super">
+                        <span class="bonus-item-icon">📚</span>
+                        <div class="bonus-item-content">
+                            <div class="bonus-item-title">Guia de Prevenção Definitivo</div>
+                            <div class="bonus-item-desc">Como nunca mais ter candidíase</div>
+                        </div>
+                    </div>
+                    <div class="bonus-item-super">
+                        <span class="bonus-item-icon">🎀</span>
+                        <div class="bonus-item-content">
+                            <div class="bonus-item-title">Kit de Higiene Íntima Natural</div>
+                            <div class="bonus-item-desc">Receitas de produtos caseiros</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Garantia -->
+            <div class="guarantee-section">
+                <div class="guarantee-icon">🛡️</div>
+                <div class="guarantee-title">Garantia Incondicional de 30 Dias</div>
+                <div class="guarantee-text">Se você não ver resultados em 7 dias ou não ficar 100% satisfeita, devolvemos todo seu dinheiro sem perguntas!</div>
+            </div>
+
+            <!-- Comparação de Preços -->
+            <div class="price-comparison">
+                <div class="price-title">💰 Investimento vs. Valor Recebido</div>
+                <div class="price-grid">
+                    <div class="price-old">
+                        <div class="price-old-label">Valor normal:</div>
+                        <div class="price-old-value">R$ 297</div>
+                    </div>
+                    <div class="price-arrow">→</div>
+                    <div class="price-new">
+                        <div class="price-new-label">Hoje apenas:</div>
+                        <div class="price-new-value">R$ 9,90</div>
+                    </div>
+                </div>
+                <div class="savings-highlight">
+                    Você economiza R$ 287,10 (96% de desconto)
+                </div>
+            </div>
+
+            <!-- CTA Super Persuasivo -->
+            <div class="cta-section-super">
+                <div class="cta-urgency">🚨 ÚLTIMAS VAGAS DISPONÍVEIS</div>
+                <div class="cta-main-text">Comece Sua Transformação AGORA por apenas</div>
+                <div class="price-highlight-super">R$ 9,90</div>
+                <a href="https://go.tribopay.com.br/a8bgwgolwj" target="_blank" style="text-decoration:none;">
+  <button class="btn-final-super btn-final-red">
+    🔥 SIM! QUERO MEU ALÍVIO EM 3 DIAS!
+  </button>
+</a>
+                <div class="security-badges">
+                    <div class="security-badge">
+                        <span class="security-icon">🔒</span>
+                        <span>Pagamento Seguro</span>
+                    </div>
+                    <div class="security-badge">
+                        <span class="security-icon">📱</span>
+                        <span>Acesso Imediato</span>
+                    </div>
+                    <div class="security-badge">
+                        <span class="security-icon">🛡️</span>
+                        <span>Garantia 30 dias</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rodapé de Confiança -->
+            <div class="trust-footer-super">
+                <div class="trust-stats">
+                    <div class="trust-stat">
+                        <div class="trust-stat-number">4.9★</div>
+                        <div class="trust-stat-label">Avaliação</div>
+                    </div>
+                    <div class="trust-stat">
+                        <div class="trust-stat-number">+15k</div>
+                        <div class="trust-stat-label">Mulheres curadas</div>
+                    </div>
+                    <div class="trust-stat">
+                        <div class="trust-stat-number">97%</div>
+                        <div class="trust-stat-label">Taxa de sucesso</div>
+                    </div>
+                </div>
+                <p class="trust-text-super">Mais de 15.000 mulheres já transformaram suas vidas com nosso protocolo. Você será a próxima!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentScreen = 1;
+    const totalScreens = 19; // Aumentado para incluir novas telas
+    let selectedSymptoms = [];
+    let selectedFactors = [];
+    let userAnswers = {};
+    let videoPlaying = false;
+    let timers = {}; // Para múltiplos timers
+    let socialValidationNames = ['Ana', 'Maria', 'Carla', 'Fernanda', 'Julia', 'Patricia', 'Beatriz', 'Camila', 'Larissa', 'Gabriela'];
+    let onlineUsers = 47;
+    let availableSlots = 7;
+
+    // Ajustar altura da viewport para mobile
+    function setVH() {
+        let vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+
+    // Criar partículas otimizadas
+    function createParticles() {
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = 6;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 8 + 's';
+            particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+            particlesContainer.appendChild(particle);
+        }
+    }
+
+    // Função para reproduzir vídeo
+    function playVideo() {
+        const videoPlayer = document.querySelector('wistia-player');
+        const playBtn = document.getElementById('playVideoBtn');
+        
+        if (videoPlayer) {
+            videoPlayer.style.display = 'block';
+            playBtn.style.display = 'none';
+            videoPlaying = true;
+            
+            // Tentar reproduzir o vídeo automaticamente
+            setTimeout(() => {
+                if (window.Wistia) {
+                    const video = window.Wistia.api('4icy3hbkxa');
+                    if (video) {
+                        video.play();
+                    }
+                }
+            }, 500);
+        }
+    }
+
+    // Parar vídeo quando sair da tela
+    function stopVideo() {
+        if (videoPlaying && window.Wistia) {
+            const video = window.Wistia.api('4icy3hbkxa');
+            if (video) {
+                video.pause();
+            }
+            videoPlaying = false;
+        }
+    }
+
+    // Navegar para próxima tela
+    function nextScreen() {
+        if (currentScreen === 2 && selectedSymptoms.length === 0) {
+            alert('Por favor, selecione pelo menos um sintoma ou "Nenhum desses"');
+            return;
+        }
+        
+        if (currentScreen === 3 && selectedFactors.length === 0) {
+            alert('Por favor, selecione pelo menos um fator ou "Nenhum desses"');
+            return;
+        }
+        
+        // Parar vídeo se estiver na tela de vídeo
+        if (currentScreen === 8) {
+            stopVideo();
+        }
+        
+        let nextScreenId;
+        
+        // Lógica de navegação entre telas
+        if (currentScreen === 2) {
+            // Se há sintomas selecionados que não sejam "nenhum", ir para tela de agravamento
+            if (selectedSymptoms.length > 0 && selectedSymptoms.some(s => s !== 'nenhum')) {
+                nextScreenId = '2_5';
+            } else {
+                nextScreenId = 3;
+            }
+        } else if (currentScreen === '2_5') {
+            nextScreenId = 3;
+        } else if (currentScreen === 15) {
+            nextScreenId = '15_5';
+        } else if (currentScreen === '15_5') {
+            nextScreenId = 16;
+        } else {
+            nextScreenId = parseInt(currentScreen) + 1;
+        }
+        
+        const current = document.getElementById(`screen${currentScreen}`);
+        const next = document.getElementById(`screen${nextScreenId}`);
+        
+        if (current && next) {
+            current.classList.remove('active');
+            current.classList.add('prev');
+            
+            setTimeout(() => {
+                next.classList.add('active');
+                currentScreen = nextScreenId;
+                
+                // Ações específicas para cada tela
+                if (currentScreen === 14) {
+                    startAnalysisAnimation();
+                    setTimeout(() => {
+                        nextScreen();
+                    }, 8000);
+                }
+                
+                if (currentScreen === 15) {
+                    calculateRisk();
+                }
+
+                if (currentScreen === '15_5') {
+                    startSocialValidation();
+                    startScarcityCountdown();
+                }
+
+                if (currentScreen === 16) {
+                    startPlanGeneration();
+                }
+
+                if (currentScreen === 17) {
+                    generatePersonalizedAnalysis();
+                }
+            }, 300);
+        }
+    }
+
+    // Animação da tela de análise MELHORADA
+    function startAnalysisAnimation() {
+        const analysisItems = document.querySelectorAll('.analysis-item');
+        const progressFill = document.getElementById('analysisProgressFill');
+        const progressPercentage = document.getElementById('analysisProgressPercentage');
+        
+        let currentStep = 0;
+        let progress = 0;
+        
+        // Função para mostrar cada item sequencialmente
+        function showNextItem() {
+            if (currentStep < analysisItems.length) {
+                const item = analysisItems[currentStep];
+                
+                // Mostrar o item atual
+                setTimeout(() => {
+                    item.classList.add('show');
+                }, 100);
+                
+                // Atualizar progresso
+                progress += 20;
+                progressFill.style.width = progress + '%';
+                progressPercentage.textContent = progress + '%';
+                
+                if (progress >= 20) {
+                    progressPercentage.classList.add('show');
+                }
+                
+                currentStep++;
+                
+                // Agendar próximo item
+                setTimeout(showNextItem, 1500);
+            } else {
+                // Finalizar progresso
+                setTimeout(() => {
+                    progress = 74;
+                    progressFill.style.width = progress + '%';
+                    progressPercentage.textContent = progress + '%';
+                }, 500);
+            }
+        }
+        
+        // Iniciar a sequência
+        showNextItem();
+    }
+
+    // Toggle sintoma
+    function toggleSymptom(element) {
+        const symptom = element.dataset.symptom;
+        
+        if (symptom === 'nenhum') {
+            document.querySelectorAll('.symptom-card').forEach(card => {
+                if (card !== element) {
+                    card.classList.remove('selected');
+                }
+            });
+            selectedSymptoms = [];
+        } else {
+            const noneCard = document.querySelector('[data-symptom="nenhum"]');
+            if (noneCard) {
+                noneCard.classList.remove('selected');
+            }
+            selectedSymptoms = selectedSymptoms.filter(s => s !== 'nenhum');
+        }
+        
+        // Toggle do sintoma atual
+        if (selectedSymptoms.includes(symptom)) {
+            selectedSymptoms = selectedSymptoms.filter(s => s !== symptom);
+            element.classList.remove('selected');
+        } else {
+            selectedSymptoms.push(symptom);
+            element.classList.add('selected');
+        }
+        
+        updateSymptomsCounter();
+        
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
+        }
+    }
+
+    // Toggle fator
+    function toggleFactor(element) {
+        const factor = element.dataset.factor;
+        const checkbox = element.querySelector('.factor-checkbox');
+        
+        element.classList.toggle('selected');
+        checkbox.classList.toggle('checked');
+        
+        if (element.classList.contains('selected')) {
+            if (!selectedFactors.includes(factor)) {
+                selectedFactors.push(factor);
+            }
+        } else {
+            selectedFactors = selectedFactors.filter(f => f !== factor);
+        }
+        
+        updateFactorsCounter();
+        
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
+        }
+    }
+
+    // Selecionar escala (1-10)
+    function selectScale(element, value) {
+        document.querySelectorAll('.scale-item').forEach(item => {
+            item.classList.remove('selected', 'auto-selected');
+        });
+        
+        element.classList.add('selected', 'auto-selected');
+        userAnswers.scaleValue = value;
+        
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
+        }
+        
+        // Avanço automático após animação
+        setTimeout(() => {
+            nextScreen();
+        }, 1200);
+    }
+
+    // Selecionar opção única
+    function selectOption(element, category, value) {
+        const parentGrid = element.parentElement;
+        parentGrid.querySelectorAll('.option-card').forEach(card => {
+            card.classList.remove('selected', 'auto-selected');
+        });
+        
+        element.classList.add('selected', 'auto-selected');
+        userAnswers[category] = value;
+        
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
+        }
+        
+        // Avanço automático após animação
+        setTimeout(() => {
+            nextScreen();
+        }, 1200);
+    }
+
+    // Toggle opção múltipla
+    function toggleMultiOption(element, category, value) {
+        if (!userAnswers[category]) {
+            userAnswers[category] = [];
+        }
+        
+        if (value === 'nenhum') {
+            const parentGrid = element.parentElement;
+            parentGrid.querySelectorAll('.option-card').forEach(card => {
+                if (card !== element) {
+                    card.classList.remove('selected');
+                }
+            });
+            userAnswers[category] = [];
+        } else {
+            const noneCard = element.parentElement.querySelector('[data-option="nenhum"]');
+            if (noneCard) {
+                noneCard.classList.remove('selected');
+            }
+            userAnswers[category] = userAnswers[category].filter(item => item !== 'nenhum');
+        }
+        
+        element.classList.toggle('selected');
+        
+        if (element.classList.contains('selected')) {
+            if (!userAnswers[category].includes(value)) {
+                userAnswers[category].push(value);
+            }
+        } else {
+            userAnswers[category] = userAnswers[category].filter(item => item !== value);
+        }
+        
+        updateMultiCounter(category);
+        
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
+        }
+    }
+
+    // Atualizar contador de sintomas
+    function updateSymptomsCounter() {
+        const counter = document.getElementById('symptomsCounter');
+        const btn = document.getElementById('symptomsBtn');
+        const count = selectedSymptoms.length;
+        
+        counter.textContent = `Selecione quantos se aplicam (${count} selecionado${count !== 1 ? 's' : ''})`;
+        
+        if (count > 0) {
+            btn.classList.add('show');
+        } else {
+            btn.classList.remove('show');
+        }
+    }
+
+    // Atualizar contador de fatores
+    function updateFactorsCounter() {
+        const counter = document.getElementById('factorsCounter');
+        const btn = document.getElementById('factorsBtn');
+        const count = selectedFactors.length;
+        
+        counter.textContent = `Selecione quantas se aplicam (${count} selecionado${count !== 1 ? 's' : ''})`;
+        
+        if (count > 0) {
+            btn.classList.add('show');
+        } else {
+            btn.classList.remove('show');
+        }
+    }
+
+    // Atualizar contador múltiplo
+    function updateMultiCounter(category) {
+        const counter = document.getElementById(category + 'Counter');
+        const btn = document.getElementById(category + 'Btn');
+        const count = userAnswers[category] ? userAnswers[category].length : 0;
+        
+        if (counter) {
+            counter.textContent = `Selecione quantos se aplicam (${count} selecionado${count !== 1 ? 's' : ''})`;
+        }
+        
+        if (btn) {
+            if (count > 0) {
+                btn.classList.add('show');
+            } else {
+                btn.classList.remove('show');
+            }
+        }
+    }
+
+    // Função melhorada para calcular risco e mostrar sintomas
+    function calculateRisk() {
+        let riskScore = 30;
+        const detectedSymptoms = [];
+        
+        const symptomMap = {
+            'coceira': { text: 'Coceira interna intensa', icon: '🔥', risk: 15 },
+            'ardencia': { text: 'Ardência ao urinar', icon: '💧', risk: 15 },
+            'corrimento': { text: 'Corrimento branco anormal', icon: '🌙', risk: 15 },
+            'desconforto': { text: 'Desconforto durante relações', icon: '💔', risk: 15 }
+        };
+        
+        selectedSymptoms.forEach(symptom => {
+            if (symptomMap[symptom]) {
+                detectedSymptoms.push(symptomMap[symptom]);
+                riskScore += symptomMap[symptom].risk;
+            }
+        });
+        
+        const highRiskFactors = ['antibioticos', 'estresse', 'imunidade'];
+        const factorsRisk = selectedFactors.filter(f => highRiskFactors.includes(f)).length;
+        riskScore += factorsRisk * 10;
+        
+        // Adicionar pontos baseados nas novas perguntas
+        if (userAnswers.scaleValue && userAnswers.scaleValue >= 7) {
+            riskScore += 15;
+        }
+        
+        if (userAnswers.constrangimento === 'sim-frequente') {
+            riskScore += 10;
+        }
+        
+        if (userAnswers.banheiro === 'diariamente') {
+            riskScore += 10;
+        }
+        
+        riskScore = Math.min(95, Math.max(45, riskScore));
+        
+        const riskElement = document.getElementById('riskPercentage');
+        let currentRisk = 0;
+        const increment = riskScore / 40;
+        const timer = setInterval(() => {
+            currentRisk += increment;
+            if (currentRisk >= riskScore) {
+                currentRisk = riskScore;
+                clearInterval(timer);
+            }
+            riskElement.textContent = Math.round(currentRisk) + '%';
+        }, 50);
+        
+        const symptomsList = document.getElementById('detectedSymptomsList');
+        if (detectedSymptoms.length > 0) {
+            symptomsList.innerHTML = detectedSymptoms.map(symptom => 
+                `<li class="symptom-item">
+                    <span class="symptom-icon-small">${symptom.icon}</span>
+                    <span>${symptom.text}</span>
+                </li>`
+            ).join('');
+        } else {
+            document.getElementById('symptomsDetected').style.display = 'none';
+        }
+        
+        startCountdown();
+    }
+
+    // Countdown timer
+    function startCountdown() {
+        const countdownElement = document.getElementById('countdownTimer');
+        let hours = 71;
+        let minutes = 45;
+        let seconds = 32;
+        
+        const countdownInterval = setInterval(() => {
+            seconds--;
+            if (seconds < 0) {
+                seconds = 59;
+                minutes--;
+                if (minutes < 0) {
+                    minutes = 59;
+                    hours--;
+                    if (hours < 0) {
+                        clearInterval(countdownInterval);
+                        return;
+                    }
+                }
+            }
+            
+            const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            countdownElement.textContent = formattedTime;
+        }, 1000);
+    }
+
+    // Iniciar geração do plano personalizado
+    function startPlanGeneration() {
+        const steps = ['step1', 'step2', 'step3', 'step4', 'step5'];
+        const progressBar = document.getElementById('loadingProgress');
+        let currentStep = 0;
+        let progress = 0;
+
+        const stepInterval = setInterval(() => {
+            if (currentStep > 0) {
+                document.getElementById(steps[currentStep - 1]).classList.remove('active');
+                document.getElementById(steps[currentStep - 1]).classList.add('completed');
+            }
+            
+            if (currentStep < steps.length) {
+                document.getElementById(steps[currentStep]).classList.add('active');
+                currentStep++;
+                progress += 20;
+                progressBar.style.width = progress + '%';
+            } else {
+                document.getElementById(steps[steps.length - 1]).classList.remove('active');
+                document.getElementById(steps[steps.length - 1]).classList.add('completed');
+                progressBar.style.width = '100%';
+                clearInterval(stepInterval);
+                
+                setTimeout(() => {
+                    nextScreen();
+                }, 2000);
+            }
+        }, 1500);
+    }
+
+    // Função para gerar análise personalizada baseada nas respostas
+    function generatePersonalizedAnalysis() {
+        generatePersonalizedStats();
+        generateVaginalProfile();
+        generatePersonalInsights();
+        generateTestimonials();
+        startOfferTimer();
+    }
+
+    // Gerar estatísticas personalizadas
+    function generatePersonalizedStats() {
+        const statsGrid = document.getElementById('personalizedStats');
+        let riskLevel = calculatePersonalizedRisk();
+        let urgencyLevel = calculateUrgencyLevel();
+        
+        const stats = [
+            {
+                number: riskLevel + '%',
+                label: 'Nível de Risco Atual'
+            },
+            {
+                number: urgencyLevel + 'h',
+                label: 'Janela de Tratamento'
+            },
+            {
+                number: selectedSymptoms.length,
+                label: 'Sintomas Identificados'
+            },
+            {
+                number: selectedFactors.length,
+                label: 'Fatores de Risco'
+            }
+        ];
+        
+        statsGrid.innerHTML = stats.map(stat => `
+            <div class="stat-card">
+                <div class="stat-number">${stat.number}</div>
+                <div class="stat-label">${stat.label}</div>
+            </div>
+        `).join('');
+    }
+
+    // Gerar perfil vaginal personalizado
+    function generateVaginalProfile() {
+        const profileTypeName = document.getElementById('profileTypeName');
+        const profileDescription = document.getElementById('profileDescription');
+        
+        let profileType = 'Flora Equilibrada Tipo-A';
+        let description = 'Flora vaginal estável com tendência a desequilíbrios ocasionais.';
+        
+        if (selectedSymptoms.length >= 3) {
+            profileType = 'Flora Sensível Tipo-C';
+            description = 'Flora vaginal altamente sensível com predisposição a infecções recorrentes.';
+        } else if (selectedFactors.includes('antibioticos') || selectedFactors.includes('estresse')) {
+            profileType = 'Flora Sensível Tipo-B';
+            description = 'Reação comum a fungos, estresse e antibióticos. Requer intervenção suave e contínua.';
+        }
+        
+        profileTypeName.textContent = profileType;
+        profileDescription.textContent = description;
+    }
+
+    // Gerar insights personalizados
+    function generatePersonalInsights() {
+        const insightsContainer = document.getElementById('personalInsights');
+        const insights = [];
+        
+        if (selectedSymptoms.includes('coceira')) {
+            insights.push({
+                icon: '🔥',
+                text: 'Sua coceira indica um desequilíbrio significativo na flora vaginal que precisa ser tratado imediatamente.'
+            });
+        }
+        
+        if (selectedFactors.includes('antibioticos')) {
+            insights.push({
+                icon: '💊',
+                text: 'O uso de antibióticos destruiu suas bactérias protetoras, criando ambiente ideal para fungos.'
+            });
+        }
+        
+        if (userAnswers.scaleValue && userAnswers.scaleValue >= 7) {
+            insights.push({
+                icon: '📊',
+                text: 'Seu nível de desconforto está impactando significativamente sua qualidade de vida diária.'
+            });
+        }
+        
+        if (userAnswers.constrangimento === 'sim-frequente') {
+            insights.push({
+                icon: '💔',
+                text: 'O impacto emocional está afetando sua autoestima e relacionamentos íntimos.'
+            });
+        }
+        
+        // Insights padrão se não houver específicos
+        if (insights.length === 0) {
+            insights.push(
+                {
+                    icon: '🔬',
+                    text: 'Seu perfil indica predisposição a desequilíbrios da flora vaginal.'
+                },
+                {
+                    icon: '⚡',
+                    text: 'Intervenção preventiva pode evitar problemas futuros mais graves.'
+                }
+            );
+        }
+        
+        insightsContainer.innerHTML = insights.map(insight => `
+            <div class="insight-item">
+                <span class="insight-icon">${insight.icon}</span>
+                <span class="insight-text">${insight.text}</span>
+            </div>
+        `).join('');
+    }
+
+    // Gerar depoimentos personalizados
+    function generateTestimonials() {
+        const testimonial1 = document.getElementById('testimonial1');
+        const testimonial2 = document.getElementById('testimonial2');
+        
+        const testimonials = [
+            {
+                text: '"Tinha os mesmos sintomas que você. Em 5 dias já senti alívio total!"',
+                author: '- Marina, 28 anos'
+            },
+            {
+                text: '"Depois de anos sofrendo, finalmente encontrei a solução definitiva."',
+                author: '- Carla, 35 anos'
+            },
+            {
+                text: '"O protocolo mudou minha vida. Nunca mais tive candidíase!"',
+                author: '- Ana, 31 anos'
+            },
+            {
+                text: '"Simples, natural e eficaz. Recomendo para todas as mulheres!"',
+                author: '- Juliana, 29 anos'
+            }
+        ];
+        
+        const randomTestimonials = testimonials.sort(() => 0.5 - Math.random()).slice(0, 2);
+        
+        testimonial1.innerHTML = `
+            <div class="testimonial-text">${randomTestimonials[0].text}</div>
+            <div class="testimonial-author">${randomTestimonials[0].author}</div>
+        `;
+        
+        testimonial2.innerHTML = `
+            <div class="testimonial-text">${randomTestimonials[1].text}</div>
+            <div class="testimonial-author">${randomTestimonials[1].author}</div>
+        `;
+    }
+
+    // Calcular risco personalizado
+    function calculatePersonalizedRisk() {
+        let risk = 45;
+        risk += selectedSymptoms.length * 10;
+        risk += selectedFactors.length * 8;
+        
+        if (userAnswers.scaleValue && userAnswers.scaleValue >= 7) {
+            risk += 15;
+        }
+        
+        return Math.min(95, risk);
+    }
+
+    // Calcular nível de urgência
+    function calculateUrgencyLevel() {
+        let urgency = 72;
+        if (selectedSymptoms.length > 2) urgency = 48;
+        if (selectedFactors.includes('antibioticos')) urgency = 24;
+        if (userAnswers.scaleValue && userAnswers.scaleValue >= 8) urgency = 24;
+        return urgency;
+    }
+
+    // Timer da oferta
+    function startOfferTimer() {
+        const timerElement = document.getElementById('offerTimer');
+        let minutes = 14;
+        let seconds = 32;
+        
+        const timerInterval = setInterval(() => {
+            seconds--;
+            if (seconds < 0) {
+                seconds = 59;
+                minutes--;
+                if (minutes < 0) {
+                    clearInterval(timerInterval);
+                    return;
+                }
+            }
+            
+            const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            timerElement.textContent = formattedTime;
+        }, 1000);
+    }
+
+    // Simular compra
+    function purchase() {
+        if (navigator.vibrate) {
+            navigator.vibrate([100, 50, 100]);
+        }
+        
+        alert('Redirecionando para pagamento seguro...\n\nEm um sistema real, aqui seria integrado com um gateway de pagamento.');
+    }
+
+    // Prevenir zoom em double tap
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function (event) {
+        const now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', function() {
+        setVH();
+        createParticles();
+        updateSymptomsCounter();
+        updateFactorsCounter();
+    });
+
+    // Novas funções para melhorias do funil
+    
+    // Timer inicial na tela de boas-vindas
+    function startInitialTimer() {
+        let minutes = 19;
+        let seconds = 47;
+        
+        const timerElement = document.getElementById('initialTimer');
+        
+        const countdown = setInterval(() => {
+            if (seconds === 0) {
+                if (minutes === 0) {
+                    clearInterval(countdown);
+                    timerElement.textContent = '00:00';
+                    return;
+                }
+                minutes--;
+                seconds = 59;
+            } else {
+                seconds--;
+            }
+            
+            const displayMinutes = minutes.toString().padStart(2, '0');
+            const displaySeconds = seconds.toString().padStart(2, '0');
+            timerElement.textContent = `${displayMinutes}:${displaySeconds}`;
+        }, 1000);
+        
+        timers.initial = countdown;
+    }
+
+    // Validação social dinâmica
+    function startSocialValidation() {
+        const onlineCounterElement = document.getElementById('onlineCounter');
+        const recentActionsElement = document.getElementById('recentActions');
+        
+        // Atualizar contador de usuários online
+        setInterval(() => {
+            onlineUsers += Math.floor(Math.random() * 3) - 1;
+            onlineUsers = Math.max(35, Math.min(60, onlineUsers));
+            if (onlineCounterElement) {
+                onlineCounterElement.textContent = onlineUsers;
+            }
+        }, 8000);
+        
+        // Mostrar ações recentes
+        const actions = [
+            'acabou de completar o diagnóstico',
+            'iniciou o protocolo personalizado',
+            'relatou melhora em 3 dias',
+            'terminou a análise completa',
+            'acessou o plano exclusivo'
+        ];
+        
+        setInterval(() => {
+            const randomName = socialValidationNames[Math.floor(Math.random() * socialValidationNames.length)];
+            const randomAction = actions[Math.floor(Math.random() * actions.length)];
+            if (recentActionsElement) {
+                recentActionsElement.textContent = `${randomName} ${randomAction}`;
+            }
+        }, 6000);
+    }
+
+    // Countdown de escassez
+    function startScarcityCountdown() {
+        let minutes = 14;
+        let seconds = 23;
+        
+        const timerElement = document.getElementById('finalTimer');
+        
+        const countdown = setInterval(() => {
+            if (seconds === 0) {
+                if (minutes === 0) {
+                    clearInterval(countdown);
+                    minutes = 19;
+                    seconds = 59;
+                    availableSlots = 3;
+                    return;
+                }
+                minutes--;
+                seconds = 59;
+            } else {
+                seconds--;
+            }
+            
+            if (Math.random() < 0.02) {
+                availableSlots = Math.max(2, availableSlots - 1);
+                const urgencyElement = document.querySelector('.urgency-final div');
+                if (urgencyElement) {
+                    urgencyElement.innerHTML = `🚨 ÚLTIMAS ${availableSlots} VAGAS DISPONÍVEIS HOJE`;
+                }
+            }
+            
+            const displayMinutes = minutes.toString().padStart(2, '0');
+            const displaySeconds = seconds.toString().padStart(2, '0');
+            if (timerElement) {
+                timerElement.textContent = `${displayMinutes}:${displaySeconds}`;
+            }
+        }, 1000);
+        
+        timers.scarcity = countdown;
+    }
+
+
+
+    // Inicializar timer na carga da página
+    document.addEventListener('DOMContentLoaded', function() {
+        startInitialTimer();
+    });
+
+    // Reajustar em resize/orientação
+    window.addEventListener('resize', setVH);
+    window.addEventListener('orientationchange', function() {
+        setTimeout(setVH, 100);
+    });
+</script>
+</body>
+</html>
